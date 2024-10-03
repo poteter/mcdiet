@@ -1,0 +1,57 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173/"
+            allowedMethods:
+              - GET
+      routes:
+        - id: itemDB
+          uri: http://localhost:8008
+          predicates:
+            - Path=/itemController/api/item/**
+            - Method=GET
+          filters:
+            - StripPrefix=1
+        - id: userParams
+          uri: http://localhost:8888
+          predicates:
+            - Path=/userParameters/api/user/**
+            - Method=POST
+          filters:
+            - StripPrefix=1
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        health-check-interval: 10s
+        health-check-path: /actuator/health
+        # Optional: Configure how the gateway discovers services
+        default-query-tag: http
+        prefer-ip-address: true
+        register: true
+
+# Optional: Configure logging levels
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

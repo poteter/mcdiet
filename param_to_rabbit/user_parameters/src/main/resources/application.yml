@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: userParameters
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        health-check-interval: 10s
+        health-check-path: /actuator/health
+        # Optional: Configure how the gateway discovers services
+        default-query-tag: http
+        prefer-ip-address: true
+        register: true
+        enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+server:
+  port: 8888

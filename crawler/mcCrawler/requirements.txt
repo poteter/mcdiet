@@ -1,0 +1,5 @@
+pika
+selenium
+browsermob-proxy
+colorama
+python-dotenv
