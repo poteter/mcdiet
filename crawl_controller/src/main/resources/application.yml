@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: crawl_controller
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+        health-check-interval: 10s
+        health-check-path: /actuator/health
+        # Optional: Configure how the gateway discovers services
+        default-query-tag: http
+        prefer-ip-address: true
+        register: true
+server:
+  port: 8086
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
