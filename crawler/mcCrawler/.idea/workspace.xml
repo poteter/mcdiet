@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ecdbdad3-747c-49a7-9a03-1fe8d8ca211c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../crawl_controller/src/main/java/com/boiler/crawl_controller/control/CrawlController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../crawl_controller/src/main/java/com/boiler/crawl_controller/control/CrawlService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/bmp.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/README.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/bmp.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/conf/bmp-logging.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-javadoc.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-javadoc.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/lib/browsermob-dist-2.1.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-certificate-ec.cer" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-certificate-rsa.cer" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-keystore-ec.p12" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-keystore-rsa.p12" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/chromedriver.exe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/environment/crawl.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/server.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/mcCrawler/urlCrawler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bmp.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/LICENSE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/README.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/bmp.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/conf/bmp-logging.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-javadoc.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-javadoc.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-sources.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/lib/browsermob-dist-2.1.4.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-certificate-ec.cer" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-certificate-rsa.cer" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-keystore-ec.p12" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/ssl-support/ca-keystore-rsa.p12" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/chromedriver.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment/crawl.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server.log" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/urlCrawler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/.idea/dupe_checker.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/dupeChecker/DupeCheck.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/dupeChecker/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../dupe_checker/dupeChecker/environment/dupe.env" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="2mxp2Pd0qwR7WLrilGwJM1juw6P" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/crawler/mcCrawler/src",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\skole\semester5\microservices\mcdiet\crawler\mcCrawler\src" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-PY-242.21829.153" />
+        <option value="bundled-python-sdk-464836ebc622-b74155a9e76b-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.21829.153" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ecdbdad3-747c-49a7-9a03-1fe8d8ca211c" name="Changes" comment="" />
+      <created>1728027873854</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1728027873854</updated>
+      <workItem from="1728027879725" duration="820000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
