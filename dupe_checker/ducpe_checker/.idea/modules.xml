@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/dupe_checker.iml" filepath="$PROJECT_DIR$/.idea/dupe_checker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ducpe_checker.iml" filepath="$PROJECT_DIR$/.idea/ducpe_checker.iml" />
     </modules>
   </component>
 </project>
