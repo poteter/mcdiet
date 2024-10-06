@@ -1,8 +1,6 @@
 package micro.homework.demo.item;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -42,8 +40,8 @@ public class ItemController {
     }
 
     @GetMapping("/codecal")
-    public List<ItemIdAndEnergyKcal> getCodeAndCal() {
-        return itemService.fetchItemIdsAndEnergy();
+    public List<ItemIdFoodTypeAndEnergyKcal> getCodeFoodTypeAndCal() {
+        return itemService.fetchFoodTypeItemIdsAndEnergy();
     }
 
     /* POST mappings */

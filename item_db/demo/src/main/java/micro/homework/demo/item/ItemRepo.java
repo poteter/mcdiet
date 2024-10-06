@@ -12,6 +12,6 @@ public interface ItemRepo extends JpaRepository<Item, Long>{
     @Query("SELECT i.item_id from Item as i")
     public List<Long> getItemIds();
 
-    @Query("SELECT i.item_id AS itemId, i.energy_Kcal AS energyKcal FROM Item i")
-    List<ItemIdAndEnergyKcal> getItemIdAndEnergyKcal();
+    @Query("SELECT i.item_id AS itemId, i.energy_Kcal AS energyKcal, i.food_type AS foodType FROM Item i")
+    List<ItemIdFoodTypeAndEnergyKcal> getItemIdFoodTypeAndEnergyKcal();
 }

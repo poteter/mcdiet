@@ -1,14 +1,10 @@
 package micro.homework.demo.item;
 
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.Channel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -25,8 +21,8 @@ public class ItemService {
         return itemRepo.findAll();
     }
 
-    public List<ItemIdAndEnergyKcal> fetchItemIdsAndEnergy() {
-        return itemRepo.getItemIdAndEnergyKcal();
+    public List<ItemIdFoodTypeAndEnergyKcal> fetchFoodTypeItemIdsAndEnergy() {
+        return itemRepo.getItemIdFoodTypeAndEnergyKcal();
     }
 
     public void deleteItemByCode(Long code) {

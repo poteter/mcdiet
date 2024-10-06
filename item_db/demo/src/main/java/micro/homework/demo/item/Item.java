@@ -22,7 +22,11 @@ public class Item {
     @Column(name = "energyKcal")
     private int energy_Kcal;
 
-    public Item(String itemName, int kcal, Long item_id) {
+    @Column(name = "foodType")
+    private String food_type;
+
+    public Item(String itemName, int kcal, Long item_id, String food_type) {
+        this.food_type = food_type;
         this.item_name = itemName;
         this.energy_Kcal = kcal;
         this.item_id = item_id;
