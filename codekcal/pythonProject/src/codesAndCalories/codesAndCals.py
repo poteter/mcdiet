@@ -26,18 +26,18 @@ def get_parameters_from_queue(queue_name):
     return json.loads(params)
 
 def convert_list_to_dict(lst):
-    res_dicr = {item['itemId']: item['energyKcal'] for item in lst}
-    return res_dicr
+    res_dict = {item['itemId']: {'energyKcal': item['energyKcal'], 'category': item['category']} for item in lst}
+    return res_dict
 
 ## get codes and kcal from db
-def get_codes_and_calories_from_db(uri):
+def get_codes_foodtype_and_calories_from_db(uri):
     try:
         response = requests.get(uri)
         response.raise_for_status()
 
-        code_cal_response = response.json()
-        if isinstance(code_cal_response, list):
-            return code_cal_response
+        code_cal_foodtype_response = response.json()
+        if isinstance(code_cal_foodtype_response, list):
+            return code_cal_foodtype_response
         else:
             print("Unexpected data format: Expected a list of codes.")
             return []
@@ -59,10 +59,10 @@ def run():
     param_queue_name = os.getenv("PARAM_QUEUE_NAME")
     codekcal_queue_name = os.getenv("CODEKCAL_QUEUE_NAME")
     item_db_uri = f'http://localhost:{os.getenv("GW_PORT")}/itemController/api/item/codecal'
-    codecal = convert_list_to_dict(get_codes_and_calories_from_db(item_db_uri))
+    code_cal_foodtype = convert_list_to_dict(get_codes_foodtype_and_calories_from_db(item_db_uri))
     params = get_parameters_from_queue(param_queue_name)
 
-    packet = dict(codecal)
+    packet = dict(code_cal_foodtype)
     packet.update(params)
 
     send_packet_to_queue(codekcal_queue_name, packet)
