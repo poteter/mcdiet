@@ -13,11 +13,17 @@ def find_menu_item_data(json_data):
     menu_item_data = {
         "item_id": 0,
         "item_name": "",
-        "energy_Kcal": 0
+        "energy_Kcal": 0,
+        "food_type": ""
     }
 
     if "item" in json_data:
         item = json_data["item"]
+
+        if "default_category" in item:
+            category = item["default_category"]["category"]["name"]
+            food_type = "drink" if "drikker" in category.lower() else "food"
+            menu_item_data["food_type"] = food_type
 
         if "item_name" in item:
             menu_item_data["item_name"] = item["item_name"]
