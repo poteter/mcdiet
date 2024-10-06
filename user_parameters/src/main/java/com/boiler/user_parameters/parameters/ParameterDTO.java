@@ -17,4 +17,10 @@ public class ParameterDTO {
 
     @Positive(message = "NumberValue must be a positive number.")
     private Integer range;
+
+    @Positive(message = "NumberValue must be a positive number.")
+    private Integer mealsPerDay;
+
+    @Positive(message = "NumberValue must be a positive number.")
+    private Integer days;
 }
