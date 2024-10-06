@@ -17,13 +17,24 @@ def find_menu_item_data(json_data):
         "food_type": ""
     }
 
+    filter_list = ['McCafé', 'McCafe']
+
     if "item" in json_data:
         item = json_data["item"]
 
         if "default_category" in item:
-            category = item["default_category"]["category"]["name"]
-            food_type = "drink" if "drikker" in category.lower() else "food"
-            menu_item_data["food_type"] = food_type
+            if "category" not in item["default_category"]:
+                item_name = item.get("item_name").lower()
+                if any(filter_word.lower() in item_name for filter_word in filter_list):
+                    food_type = "drink"
+                else:
+                    food_type = "food"
+
+                menu_item_data["food_type"] = food_type
+            elif "category" in item["default_category"]:
+                category = item["default_category"]["category"]["name"]
+                food_type = "drink" if "drikk" in category.lower() else "food"
+                menu_item_data["food_type"] = food_type
 
         if "item_name" in item:
             menu_item_data["item_name"] = item["item_name"]
