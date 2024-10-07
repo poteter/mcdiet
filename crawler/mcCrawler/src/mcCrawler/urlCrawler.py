@@ -27,7 +27,7 @@ chrome_options.add_argument('--disable-features=IsolateOrigins,site-per-process'
 chrome_options.add_argument('--disable-extensions')
 chrome_options.add_argument('--disable-popup-blocking')
 chrome_options.add_argument(f"--proxy-server={proxy.proxy}")
-chrome_options.add_argument("--headless=new")
+chrome_options.add_argument("--headless=old")
 chrome_options.add_argument('--disable-gpu')
 
 service = ChromeService(executable_path="chromedriver.exe")
