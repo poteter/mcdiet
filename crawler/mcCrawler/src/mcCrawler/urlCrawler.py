@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 load_dotenv('environment/crawl.env')
 
-proxy_path = 'browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy'  # Update with the path to your BrowserMob Proxy executable
+proxy_path = 'browsermob-proxy-2.1.4-bin\\browsermob-proxy-2.1.4\\bin\\browsermob-proxy'  # Update with the path to your BrowserMob Proxy executable
 server = Server(proxy_path)
 server.start()
 proxy = server.create_proxy()

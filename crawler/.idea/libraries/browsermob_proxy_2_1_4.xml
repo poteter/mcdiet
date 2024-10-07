@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="browsermob-proxy-2.1.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-javadoc.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

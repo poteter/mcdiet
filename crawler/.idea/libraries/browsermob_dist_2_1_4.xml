@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="browsermob-dist-2.1.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/lib/browsermob-dist-2.1.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
