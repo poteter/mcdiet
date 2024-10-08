@@ -13,7 +13,7 @@ load_dotenv('environment/sorter.env')
 # where the caloric count of a group is <= (calories +- (range/2))/meals per day
 # M = min(1drink + >= 1food) where Mc <= (Di/Md)
 # Mc = caloric content of a meal
-# Di = calories +- range/2
+# Di = calories +- range/2 = daily caloric intake
 # r = range
 # c = calories
 # md = meals per day
@@ -56,6 +56,9 @@ def make_meals(item_dict, r, c, md):
 
 
 # combine meals into days
+def make_days(meals, days, meals_per_day, Di_min, Di_max):
+
+    return "" # make_days
 
 # add dates to days
 
@@ -85,10 +88,13 @@ def run():
 
     calories = items.get('calories')
     range = items.get('range')
-    meals_per_day = items.get('mealsPerDay')
+    Di_max = calories + (range / 2)
+    Di_min = calories - (range / 2)
     days = items.get('days')
 
+    meals_per_day = items.get('mealsPerDay')
     meals = make_meals(items, range, calories, meals_per_day)
+    calendar_days = make_days(meals, days, meals_per_day, Di_min, Di_max)
 
 
 if __name__ == "__main__":
