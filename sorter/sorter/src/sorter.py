@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import date
+from datetime import date, timedelta
 
 import requests
 import pika
@@ -20,8 +20,17 @@ load_dotenv('environment/sorter.env')
 # make groups of items that fit min(1 drink + >= 1 food)
 # where the caloric count of a group is <= (calories +- (range/2))/meals per day
 def make_meals(item_dict, r, c, md):
-    drinks = [item for key, item in item_dict.items() if isinstance(item, dict) and item.get('foodType') == 'drink']
-    foods = [item for key, item in item_dict.items() if isinstance(item, dict) and item.get('foodType') == 'food']
+    # Include 'item_id' in each item
+    drinks = [
+        {**item, 'item_id': key}
+        for key, item in item_dict.items()
+        if isinstance(item, dict) and item.get('foodType') == 'drink'
+    ]
+    foods = [
+        {**item, 'item_id': key}
+        for key, item in item_dict.items()
+        if isinstance(item, dict) and item.get('foodType') == 'food'
+    ]
     meals = []
 
     if not drinks:
@@ -32,7 +41,6 @@ def make_meals(item_dict, r, c, md):
         return []
 
     Di_max = c + (r / 2)
-
     Mc_max = Di_max / md
 
     food_combinations = []
@@ -51,10 +59,11 @@ def make_meals(item_dict, r, c, md):
                 meal_items = [drink] + list(food_combo)
                 meals.append({
                     'items': meal_items,
-                    'total_calories': total_calories
+                    'total_calories_meal': total_calories
                 })
 
-    return meals # make_meals
+    return meals  # make_meals
+
 
 # meals         = list of meals from make_meals
 # days          = number of days diet plan spans
@@ -68,19 +77,25 @@ def make_days(meals, days, meals_per_day, Di_min, Di_max):
     days_list = []
     while len(days_list) < days:
         temp_day = {}
+        day_meals = []
+        total_calories = 0
         i = 0
 
         while i < meals_per_day:
-            temp_day['meal'] = random.choice(meals)
-
-        total_calories = sum(temp_day['total_calories'])
+            meal = random.choice(meals)
+            day_meals.append(meal)
+            total_calories += meal['total_calories_meal']
+            i += 1
 
         if Di_min <= total_calories <= Di_max:
-            current_date = date.today()
+            current_date = date.today() + timedelta(days=len(days_list))
             temp_day['date'] = current_date.strftime('%m/%d/%Y')
+            temp_day['meals'] = day_meals
+            temp_day['total_calories_day'] = total_calories
             days_list.append(temp_day)
 
-    return days # make_days
+    return days_list  # make_days
+
 
 # append menu plan to packet
 
@@ -122,13 +137,14 @@ def run():
             i += 1
         else:
             break
+
     calendar_days = make_days(meals, days, meals_per_day, Di_min, Di_max)
     print(type(calendar_days))
-    i = 0
+    n = 0
     for day in calendar_days:
-        if i < 10:
+        if n < 10:
             print(day)
-            i += 1
+            n += 1
         else:
             break
 
