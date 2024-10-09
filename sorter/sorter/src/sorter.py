@@ -20,7 +20,6 @@ load_dotenv('environment/sorter.env')
 # make groups of items that fit min(1 drink + >= 1 food)
 # where the caloric count of a group is <= (calories +- (range/2))/meals per day
 def make_meals(item_dict, r, c, md):
-    # Include 'item_id' in each item
     drinks = [
         {**item, 'item_id': key}
         for key, item in item_dict.items()
@@ -81,7 +80,7 @@ def make_days(meals, days, meals_per_day, Di_min, Di_max):
         total_calories = 0
         i = 0
 
-        while i < meals_per_day:
+        while i <= meals_per_day:
             meal = random.choice(meals)
             day_meals.append(meal)
             total_calories += meal['total_calories_meal']
