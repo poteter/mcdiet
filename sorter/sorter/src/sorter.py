@@ -9,14 +9,14 @@ from itertools import combinations
 
 load_dotenv('environment/sorter.env')
 
-# make groups of items that fit min(1 drink + >= 1 food)
-# where the caloric count of a group is <= (calories +- (range/2))/meals per day
-# M = min(1drink + >= 1food) where Mc <= (Di/Md)
+# M  = min(1drink + >= 1food) where Mc <= (Di/Md)
 # Mc = caloric content of a meal
 # Di = calories +- range/2 = daily caloric intake
-# r = range
-# c = calories
+# r  = range
+# c  = calories
 # md = meals per day
+# make groups of items that fit min(1 drink + >= 1 food)
+# where the caloric count of a group is <= (calories +- (range/2))/meals per day
 def make_meals(item_dict, r, c, md):
     drinks = [item for key, item in item_dict.items() if isinstance(item, dict) and item.get('foodType') == 'drink']
     foods = [item for key, item in item_dict.items() if isinstance(item, dict) and item.get('foodType') == 'food']
@@ -54,9 +54,16 @@ def make_meals(item_dict, r, c, md):
 
     return meals # make_meals
 
-
-# combine meals into days
+# meals         = list of meals from make_meals
+# days          = number of days diet plan spans
+# meals_per_day = number of meals in a day
+# Di_min        = minimum of daily caloric intake = calories - (range / 2)
+# Di_max        = maximum of daily caloric intake = calories + (range / 2)
+# combine meals into days of eating, where the number of meals in a
+# day of eating = meals_per_day, and a day of eating
+# should have a caloric count within the range of Di_min and Di_max.
 def make_days(meals, days, meals_per_day, Di_min, Di_max):
+
 
     return "" # make_days
 
