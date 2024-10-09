@@ -26,7 +26,7 @@ def get_parameters_from_queue(queue_name):
     return json.loads(params)
 
 def convert_list_to_dict(lst):
-    res_dict = {item['itemId']: {'energyKcal': item['energyKcal'], 'category': item['category']} for item in lst}
+    res_dict = {item['itemId']: {'energyKcal': item['energyKcal'], 'foodType': item['foodType']} for item in lst}
     return res_dict
 
 ## get codes and kcal from db
