@@ -119,6 +119,7 @@ def get_items_from_queue(queue_name):
 def run():
     queue_name = os.getenv('CODE_KCAL_QUEUE')
     items = get_items_from_queue(queue_name)
+    db_packet = {}
     print(items)
 
     calories = items.get('calories')
@@ -126,6 +127,7 @@ def run():
     Di_max = calories + (range / 2)
     Di_min = calories - (range / 2)
     days = items.get('days')
+    user = items.get('user')
 
     meals_per_day = items.get('mealsPerDay')
     meals = make_meals(items, range, calories, meals_per_day)
@@ -147,6 +149,15 @@ def run():
             n += 1
         else:
             break
+
+    db_packet['user'] = user
+    db_packet['calories'] = calories
+    db_packet['range'] = range
+    db_packet['days'] = days
+    db_packet['meals_per_day'] = meals_per_day
+    db_packet['plan'] = calendar_days
+
+    print(db_packet)
 
 if __name__ == "__main__":
     run()
