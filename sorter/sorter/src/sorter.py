@@ -123,6 +123,9 @@ def get_items_from_queue(queue_name):
     connection.close()
     return json.loads(items) # get_items_from_queue
 
+def send_to_db(packet):
+    return "" # send_to_db
+
 def run():
     queue_name = os.getenv('CODE_KCAL_QUEUE')
     items = get_items_from_queue(queue_name)
