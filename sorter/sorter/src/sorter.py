@@ -97,6 +97,14 @@ def make_days(meals, days, meals_per_day, Di_min, Di_max):
 
 
 # append menu plan to packet
+def append_plan_to_packet(user, calories, range, days, meals_per_day, calendar_days):
+    db_packet = {'user': user,
+                 'calories': calories,
+                 'range': range,
+                 'days': days,
+                 'meals_per_day': meals_per_day,
+                 'plan': calendar_days}
+    return db_packet # append_plan_to_packet
 
 # get items from queue
 def get_items_from_queue(queue_name):
@@ -118,7 +126,6 @@ def get_items_from_queue(queue_name):
 def run():
     queue_name = os.getenv('CODE_KCAL_QUEUE')
     items = get_items_from_queue(queue_name)
-    db_packet = {}
     print(items)
 
     calories = items.get('calories')
@@ -149,13 +156,7 @@ def run():
         else:
             break
 
-    db_packet['user'] = user
-    db_packet['calories'] = calories
-    db_packet['range'] = range
-    db_packet['days'] = days
-    db_packet['meals_per_day'] = meals_per_day
-    db_packet['plan'] = calendar_days
-
+    db_packet = append_plan_to_packet(user, calories, range, days, meals_per_day, calendar_days)
     print(db_packet)
 
 if __name__ == "__main__":
