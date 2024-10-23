@@ -5,7 +5,7 @@ import re
 import requests
 from dotenv import load_dotenv
 
-load_dotenv('environment/dupe.env')
+load_dotenv('../environment/dupe.env')
 
 def get_codes_from_urls(urls):
     codes = []

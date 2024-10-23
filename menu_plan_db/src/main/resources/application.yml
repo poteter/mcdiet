@@ -1,0 +1,29 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: menu_plan_db
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+        health-check-interval: 10s
+        health-check-path: /actuator/health
+        # Optional: Configure how the gateway discovers services
+        default-query-tag: http
+        prefer-ip-address: true
+        register: true
+        enabled: true
+server:
+  port: 8066
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

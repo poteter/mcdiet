@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"    # AMQP port
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  mccrawler:
+    build: .
+    container_name: mccrawler
+    depends_on:
+      - rabbitmq
+    environment:
+      - BROWSERMOB_PROXY_PATH=/app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASSWORD=guest
+      - URL_QUEUE_NAME=mcURL  # Replace with your actual queue name
+    ports:
+      - "8080:8080"  # Adjust if your application exposes different ports
+    volumes:
+      - ./src/mcCrawler:/app  # Ensure this path contains urlCrawler.py
+    command: python urlCrawler.py
+
+volumes:
+  rabbitmq_data:
