@@ -4,27 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="dcdfe7bc-be96-4f57-9860-a76563799ffc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/PlanController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/PlanRepo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/PlanService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/documents/DietPlan.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/documents/Item.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/documents/Meal.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/documents/Plan.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../codekcal/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/mcCrawler/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/bmp.log" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/bmp.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/server.log" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/server.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/urlCrawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/mcCrawler/src/mcCrawler/urlCrawler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../dupe_checker/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../dupe_checker/ducpe_checker/src/DupeCheck.py" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/ducpe_checker/src/mcdonalds/DupeCheck.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../dupe_checker/ducpe_checker/src/environment/dupe.env" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/ducpe_checker/src/environment/dupe.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../formatter/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../formatter/formatter/src/formatter/environment/formatter.env" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/formatter/src/formatter/environment/formatter.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../formatter/formatter/src/formatter/jsonFormat.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/formatter/src/formatter/mcd/mcd_formatter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../item_db/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../item_db/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="dcdfe7bc-be96-4f57-9860-a76563799ffc" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,9 +20,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="2nhJMorvHfGc7XOQoCEd8X72Iuu" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -52,8 +32,8 @@
   "keyToString": {
     "Python.crawler.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "feature-crawler-docker",
-    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/dupe_checker",
+    "git-widget-placeholder": "feature-add-rabbit-config-files",
+    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/crawler",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -79,6 +59,7 @@
       <option name="presentableId" value="Default" />
       <updated>1729419328972</updated>
       <workItem from="1729419330305" duration="5216000" />
+      <workItem from="1729849371327" duration="358000" />
     </task>
     <servers />
   </component>
