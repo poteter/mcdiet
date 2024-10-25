@@ -16,7 +16,6 @@ def get_codes(data_obj_json):
         categories = data["categories"]
 
         for category in categories:
-            print(category["categoryLongName"])
             items = category["items"]
             for item in items:
                 codes.append(item["externalId"])
@@ -37,6 +36,7 @@ def send_codes(rabbit_host, rabbit_port, rabbit_username, rabbit_password, codes
 
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
+    channel.queue_declare(queue=queue_name, durable=True)
 
     for code in codes:
         str_code = str(code)
