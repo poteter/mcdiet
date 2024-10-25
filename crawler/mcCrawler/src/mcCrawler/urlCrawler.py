@@ -1,5 +1,5 @@
+import json
 import os
-
 import pika
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -8,11 +8,28 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from browsermobproxy import Server
-from colorama import Back, Style
 import time
 from dotenv import load_dotenv
+import logging
+import signal
+import sys
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 load_dotenv('environment/crawl.env')
+
+# rabbitMQ Configuration
+RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
+RABBITMQ_PORT = int(os.getenv('RABBITMQ_PORT', 5672))
+RABBITMQ_USERNAME = os.getenv('RABBITMQ_USERNAME', 'guest')
+RABBITMQ_PASSWORD = os.getenv('RABBITMQ_PASSWORD', 'guest')
+COMMAND_QUEUE = os.getenv('COMMAND_QUEUE_NAME', 'crawl_commands')
+URL_QUEUE = os.getenv('URL_QUEUE_NAME', 'crawl_results')
+
+MCDONALDS_URL = os.getenv('MCDONALDS_URL')
 
 proxy_path = 'browsermob-proxy-2.1.4-bin\\browsermob-proxy-2.1.4\\bin\\browsermob-proxy'  # Update with the path to your BrowserMob Proxy executable
 server = Server(proxy_path)
@@ -41,13 +58,12 @@ def capture_request_urls(start_url, input_url_list):
     time.sleep(5)
 
     try:
-        WebDriverWait(driver, 5).until(
+        WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'cmp-product-card-layout__list'))
         )
 
         if console_debug_on:
-            print(Back.CYAN + "cmp-product-card-layout__list FOUND")
-            print(Style.RESET_ALL)
+            logging.info("cmp-product-card-layout__list FOUND")
 
         while True:
             ul_element = driver.find_element(By.CLASS_NAME, 'cmp-product-card-layout__list')
@@ -57,18 +73,15 @@ def capture_request_urls(start_url, input_url_list):
                 break
 
             if console_debug_on:
-                print(Back.YELLOW + f"{len(buttons)} buttons FOUND")
-                print(Style.RESET_ALL)
+                logging.info(f"{len(buttons)} buttons FOUND")
 
             for i in range(len(buttons)):
                 try:
-
                     ul_element = driver.find_element(By.CLASS_NAME, 'cmp-product-card-layout__list')
                     buttons = ul_element.find_elements(By.CLASS_NAME, 'cmp-product-card__button')
 
                     if console_debug_on:
-                        print(Back.MAGENTA + f"sub-button {i}")
-                        print(Style.RESET_ALL)
+                        logging.info(f"sub-button {i}")
 
                     button = buttons[i]
                     driver.execute_script("arguments[0].scrollIntoView();", button)
@@ -82,7 +95,7 @@ def capture_request_urls(start_url, input_url_list):
 
                         if request_url.startswith("https://www.mcdonalds.com/dnaapp/itemList?country"):
                             if console_debug_on:
-                                print(f"{request_url}")
+                                logging.info(f"{request_url}")
 
                             if request_url not in input_url_list:
                                 input_url_list.append(request_url)
@@ -90,33 +103,100 @@ def capture_request_urls(start_url, input_url_list):
                     driver.find_element(By.CLASS_NAME, 'cmp-product-card-layout__navigate-button').click()
 
                 except Exception as e:
-                    print(f"An error occurred while processing button: {e}")
+                    logging.error(f"An error occurred while processing button: {e}")
                     continue
             break
 
     except Exception as e:
-        print(f"An error occurred while locating the UL element: {e}")
+        logging.error(f"An error occurred while locating the UL element: {e}")
 
     server.stop()
     driver.quit()
     return input_url_list # capture_request_urls
 
+def send_to_rabbit(url_list):
+    try:
+        credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
+        parameters = pika.ConnectionParameters(
+            host=RABBITMQ_HOST,
+            port=RABBITMQ_PORT,
+            credentials=credentials
+        )
+
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
+        channel.queue_declare(queue=URL_QUEUE, durable=True)
+        message = json.dumps(url_list)
+        channel.basic_publish(
+            exchange='',
+            routing_key=URL_QUEUE,
+            body=message,
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+            ))
+
+        logging.info(f"Sent {len(url_list)} URLs to queue '{URL_QUEUE}'")
+
+    except Exception as e:
+        logging.error(f"Failed to send URLs to RabbitMQ: {e}")
+    finally:
+        if 'connection' in locals() and connection.is_open:
+            connection.close() # send_to_rabbit
+
+def on_message(ch, method, body):
+    message = body.decode('utf-8')
+    logging.info(f"Received message: {message}")
+
+    if message.strip().lower() == "run":
+        logging.info("Starting crawler(s)")
+        url_list = []
+        url_list = capture_request_urls(MCDONALDS_URL, url_list)
+        send_to_rabbit(url_list)
+        logging.info("Crawl process completed.")
+    else:
+        logging.warning(f"Unknown command received: {message}")
+
+    ch.basic_ack(delivery_tag=method.delivery_tag) # on_message
+
+def start_consumer():
+    try:
+        credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
+        parameters = pika.ConnectionParameters(
+            host=RABBITMQ_HOST,
+            port=RABBITMQ_PORT,
+            credentials=credentials
+        )
+
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
+        channel.queue_declare(queue=COMMAND_QUEUE, durable=True)
+        channel.basic_qos(prefetch_count=1)
+        channel.basic_consume(queue=COMMAND_QUEUE, on_message_callback=on_message)
+
+        logging.info(f"Waiting for messages in queue '{COMMAND_QUEUE}'. To exit press CTRL+C")
+        channel.start_consuming()
+
+    except Exception as e:
+        logging.error(f"Error in RabbitMQ consumer: {e}")
+    finally:
+        if 'connection' in locals() and connection.is_open:
+            connection.close() # start_consumer
+
+def graceful_shutdown(sig, frame):
+    logging.info("Shutting down gracefully...")
+    try:
+        server.stop()
+        driver.quit()
+    except Exception as e:
+        logging.error(f"Error during shutdown: {e}")
+    sys.exit(0) # graceful_shutdown
+
 def run():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
-    queue_name = os.getenv('URL_QUEUE_NAME')
-    channel.queue_declare(queue=queue_name, durable=True)
+    # signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
 
-    start_url = "https://www.mcdonalds.com/no/nb-no/meny/nutrition-calculator.html"
-    url_list = []
-    url_list = capture_request_urls(start_url, url_list)
-
-    print("\n\n#################################################\n\n")
-    for url in url_list:
-        channel.basic_publish(exchange='', routing_key=queue_name, body=url)
-
-    connection.close()
-    # run
+    start_consumer() # run
 
 if __name__ == "__main__":
     run()

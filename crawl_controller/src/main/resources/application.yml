@@ -1,4 +1,9 @@
 spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   application:
     name: crawl_controller
   cloud:
@@ -6,7 +11,7 @@ spring:
       host: localhost
       port: 8500
       discovery:
-        service-name: ${spring.application.name}
+        instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
         health-check-interval: 10s
         health-check-path: /actuator/health
         # Optional: Configure how the gateway discovers services
