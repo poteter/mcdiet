@@ -1,7 +1,5 @@
 import os
-
 import pika
-import re
 import requests
 from dotenv import load_dotenv
 
@@ -31,6 +29,7 @@ def get_non_carry_item_codes(queue_codes, db_codes):
     return list(set(db_codes) - set(queue_codes)) # get_non_carry_item_codes
 
 def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
+    codes = []
     credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
     parameters = pika.ConnectionParameters(
         host=rabbit_host,
@@ -41,8 +40,6 @@ def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, 
     connection = pika.BlockingConnection(parameters)
     channel = connection.channel()
     channel.queue_declare(queue=queue_name, durable=True)
-
-    codes = []
 
     while True:
         method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=True)
@@ -85,6 +82,7 @@ def run():
     rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
     rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
 
+    # get codes from database and code queue
     db_codes = get_codes_from_db(db_port)
     queue_codes = get_codes_from_queue(code_queue_name, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password)
 
