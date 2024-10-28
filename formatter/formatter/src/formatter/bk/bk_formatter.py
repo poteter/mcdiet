@@ -2,12 +2,12 @@ import json
 import os
 
 import requests
-import pika
+
 from urllib.request import urlopen
 
 from dotenv import load_dotenv
 
-load_dotenv('../environment/formatter.env')
+load_dotenv('../../environment/formatter.env')
 
 def find_menu_item_data(data_obj_json):
     menu_item_data = {
@@ -50,10 +50,7 @@ def get_json_from_url(url):
     response = urlopen(url)
     return json.loads(response.read()) # get_json_from_url
 
-def run():
+def run(codes):
     bk_url = os.getenv('BK_URL')
     data_json = get_json_from_url(bk_url)
     find_menu_item_data(data_json)
-
-if __name__ == '__main__':
-    run()

@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 from dotenv import load_dotenv
 
-load_dotenv('../environment/formatter.env')
+load_dotenv('../../environment/formatter.env')
 
 def find_menu_item_data(json_data):
     menu_item_data = {
@@ -102,13 +102,12 @@ def make_urls_from_codes(codes, mc_url):
 
     return urls # make_urls_from_codes
 
-
 def get_json_from_url(url):
     response = urlopen(url)
     return json.loads(response.read()) # get_json_from_url
 
 
-def run():
+def run(codes):
     db_port = os.getenv('DB_PORT')
     code_queue_name = os.getenv('CODE_QUEUE_NAME')
     url = os.getenv('URL')
@@ -119,6 +118,3 @@ def run():
     for url in urls:
         send_data(get_json_from_url(url), db_port)
     # run
-
-if __name__ == "__main__":
-    run()
