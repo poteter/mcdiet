@@ -30,13 +30,14 @@ def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, 
     return codes # get_codes_from_queue
 
 # sort list of codes from the queue into sub-lists of codes by their meta code
-# mcd-500232
-# bgk-4835-fsd4123-324f
-def sort_codes(code_list, sort_code):
+# and strips meta code from queue code
+# mcd-500232 -> 500232
+# bgk-4835-fsd4123-324f -> 4835-fsd4123-324f
+def sort_codes(code_list, meta_code):
     result_list = []
     for code in code_list:
-        if sort_code in code:
-            result_list.append(code)
+        if meta_code in code:
+            result_list.append(code.replace(meta_code, ''))
     return result_list # sort_codes
 
 def run():
@@ -52,8 +53,8 @@ def run():
     queue_codes = get_codes_from_queue(carry_code_queue, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password)
 
     # calls the formatter modules
-    bk_formatter.run(sort_codes(queue_codes, "bgk"))
-    mcd_formatter.run(sort_codes(queue_codes, "mcd"))
+    bk_formatter.run(sort_codes(queue_codes, "bgk-"))
+    mcd_formatter.run(sort_codes(queue_codes, "mcd-"))
 
 if __name__ == '__main__':
     run()
