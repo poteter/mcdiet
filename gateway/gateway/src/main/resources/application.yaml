@@ -26,6 +26,13 @@ spring:
             - Method=POST
           filters:
             - StripPrefix=1
+        - id: crawlController
+          uri: http://localhost:8086
+          predicates:
+            - Path=/crawl_controller/api/crawl/**
+            - Method=POST
+          filters:
+            - StripPrefix=1
       discovery:
         locator:
           enabled: true
