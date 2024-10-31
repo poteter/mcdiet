@@ -59,6 +59,9 @@ def send_codes(rabbit_host, rabbit_port, rabbit_username, rabbit_password, codes
 
     connection.close() # send_codes
 
+def add_meta_code(code_list):
+    
+
 def run():
     code_queue_name = os.getenv("CODE_QUEUE_NAME")
     url_queue_name = os.getenv("URL_QUEUE_NAME")
