@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 public class CrawlService {
 
     public void runCrawl() {
-
+        
     }
 }
