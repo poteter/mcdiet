@@ -1,0 +1,148 @@
+services:
+  
+  consul:
+    image: consul:latest
+    container_name: consul
+    restart: unless-stopped
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+    command: "agent -server -bootstrap-expect=1 -ui -client=0.0.0.0"
+    volumes:
+      - consul-data:/consul/data
+    networks:
+      - mc_network
+    
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: adminpassword
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - mc_network
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: gateway-service
+    ports:
+      - "8080:8080"
+    networks:
+      - mc_network
+
+  user_params:
+    build:
+      context: ./user_parameters
+    container_name: user_params-service
+    ports:
+      - "8888:8888"
+    networks:
+      - mc_network
+
+  codekcal:
+    build:
+      context: ./codekcal
+    container_name: codekcal-service
+    networks:
+      - mc_network
+
+  sorter:
+    build:
+      context: ./sorter
+    container_name: sorter-service
+    networks:
+      - mc_network
+
+  menu_db:
+    build:
+      context: ./menu_plan_db
+    container_name: menu_db-service
+    ports:
+      - "8066:8066"
+    networks:
+      - mc_network
+
+  crawl_controller:
+    build:
+      context: ./crawl_controller
+    container_name: crawl_controller-service
+    ports:
+      - "8086:8086"
+    networks:
+      - mc_network
+
+  item_db:
+    build:
+      context: ./item_db
+    container_name: item_db-service
+    ports:
+      - "8008:8008"
+    networks:
+      - mc_network
+
+  bk_code_stripper:
+    build:
+      context: ./BKCodeStripper
+    container_name: bk_code_stripper-service
+    networks:
+      - mc_network
+
+  mcd_crawler:
+    build:
+      context: ./crawler
+    container_name: mc_crawler-service
+    networks:
+      - mc_network
+
+  mcd_code_stripper:
+    build:
+      context: ./MCCodeStripper
+    container_name: mcd_code_stripper-service
+    networks:
+      - mc_network
+
+  dupe_checker:
+    build:
+      context: ./dupe_checker
+    container_name: dupe_checker-service
+    networks:
+      - mc_network
+
+  dupe_remover:
+    build:
+      context: ./ItemRemover
+    container_name: remove_item-service
+    networks:
+      - mc_network
+
+  formatter:
+    build:
+      context: ./formatter
+    container_name: formatter-service
+    networks:
+      - mc_network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend-docker
+    ports:
+      - "5173:5173"
+    networks:
+      - mc_network
+
+networks:
+  mc_network:
+    driver: bridge
+volumes:
+  consul-data:
+    driver: local
+  rabbitmq-data:
+    driver: local

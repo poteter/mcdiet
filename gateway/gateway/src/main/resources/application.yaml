@@ -13,21 +13,28 @@ spring:
               - GET
       routes:
         - id: itemDB
-          uri: http://localhost:8008
+          uri: http://item_db-service:8008
           predicates:
             - Path=/itemController/api/item/**
             - Method=GET
           filters:
             - StripPrefix=1
+        - id: menuDB
+          uri: http://menu_db-service:8066
+          predicates:
+            - Path=/menuController/api/menu/**
+            - Method=GET
+          filters:
+            - StripPrefix=1
         - id: userParams
-          uri: http://localhost:8888
+          uri: http://user_params-service:8888
           predicates:
             - Path=/userParameters/api/user/**
             - Method=POST
           filters:
             - StripPrefix=1
         - id: crawlController
-          uri: http://localhost:8086
+          uri: http://crawl_controller-service:8086
           predicates:
             - Path=/crawl_controller/api/crawl/**
             - Method=POST
@@ -44,12 +51,10 @@ spring:
         service-name: ${spring.application.name}
         health-check-interval: 10s
         health-check-path: /actuator/health
-        # Optional: Configure how the gateway discovers services
         default-query-tag: http
         prefer-ip-address: true
         register: true
 
-# Optional: Configure logging levels
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

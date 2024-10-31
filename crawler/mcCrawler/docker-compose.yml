@@ -5,8 +5,8 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     ports:
-      - "5672:5672"    # AMQP port
-      - "15672:15672"  # Management UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -24,11 +24,11 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=guest
       - RABBITMQ_PASSWORD=guest
-      - URL_QUEUE_NAME=mcURL  # Replace with your actual queue name
+      - URL_QUEUE_NAME=mcURL
     ports:
-      - "8080:8080"  # Adjust if your application exposes different ports
+      - "8080:8080"
     volumes:
-      - ./src/mcCrawler:/app  # Ensure this path contains urlCrawler.py
+      - ./src/mcCrawler:/app
     command: python urlCrawler.py
 
 volumes:
