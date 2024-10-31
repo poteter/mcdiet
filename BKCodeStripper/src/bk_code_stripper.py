@@ -26,6 +26,10 @@ def get_json_from_url(url):
     response = urlopen(url)
     return json.loads(response.read()) # get_json_from_url
 
+def add_meta_code(code_list):
+    formatted_list = ["bgk-" + code for code in code_list]
+    return formatted_list
+
 def send_codes(rabbit_host, rabbit_port, rabbit_username, rabbit_password, codes, queue_name):
     credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
     parameters = pika.ConnectionParameters(
@@ -55,7 +59,9 @@ def run():
     RABBITMQ_PASSWORD = os.getenv('RABBITMQ_PASSWORD', 'guest')
 
     data_json = get_json_from_url(bk_url)
-    send_codes(RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, get_codes(data_json), code_queue_name)
+    codes = get_codes(data_json)
+    formatted_codes = add_meta_code(codes)
+    send_codes(RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, formatted_codes, code_queue_name)
 
 if __name__ == '__main__':
     run()
