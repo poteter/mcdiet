@@ -60,7 +60,8 @@ def send_codes(rabbit_host, rabbit_port, rabbit_username, rabbit_password, codes
     connection.close() # send_codes
 
 def add_meta_code(code_list):
-    
+    formatted_list = ["mcd-" + code for code in code_list]
+    return formatted_list
 
 def run():
     code_queue_name = os.getenv("CODE_QUEUE_NAME")
@@ -74,7 +75,8 @@ def run():
 
     urls = get_urls(rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue_name)
     codes = get_codes_from_urls(urls)
-    send_codes(rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, codes, code_queue_name)
+    formatted_codes = add_meta_code(codes)
+    send_codes(rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, formatted_codes, code_queue_name)
 
 if __name__ == '__main__':
     run()
