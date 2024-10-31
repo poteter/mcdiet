@@ -1,4 +1,6 @@
+import json
 import os
+import signal
 import sys
 import traceback
 import time
@@ -28,33 +30,6 @@ logging.basicConfig(
         logging.FileHandler("server.log")
     ]
 )
-
-def connect_to_rabbitmq():
-    try:
-        credentials = pika.PlainCredentials(
-            os.getenv('RABBITMQ_USER', 'guest'),
-            os.getenv('RABBITMQ_PASSWORD', 'guest')
-        )
-        parameters = pika.ConnectionParameters(
-            host=os.getenv('RABBITMQ_HOST', 'rabbitmq'),
-            port=int(os.getenv('RABBITMQ_PORT', 5672)),
-            credentials=credentials,
-            heartbeat=600,  # Adjust heartbeat as needed
-            blocked_connection_timeout=300  # Adjust timeout as needed
-        )
-        connection = pika.BlockingConnection(parameters)
-        channel = connection.channel()
-        logging.info("Successfully connected to RabbitMQ.")
-        return connection, channel
-    except pika.exceptions.AMQPConnectionError as e:
-        logging.error(f"Failed to connect to RabbitMQ: {e}")
-        logging.error(traceback.format_exc())
-        sys.exit(1)
-    except Exception as e:
-        logging.error(f"An unexpected error occurred while connecting to RabbitMQ: {e}")
-        logging.error(traceback.format_exc())
-        sys.exit(1)
-
 
 # Fetch environment variables for Browsermob-Proxy
 proxy_path = os.environ.get('BROWSERMOB_PROXY_PATH',
@@ -94,6 +69,7 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 # Set to True to enable console debug messages
 console_debug_on = False
 
+mcdonalds_url = os.getenv('MCDONALDS_URL')
 
 def capture_request_urls(start_url, input_url_list, max_retries=3):
     proxy.new_har("capture_requests", options={'captureHeaders': True})
@@ -204,30 +180,104 @@ def capture_request_urls(start_url, input_url_list, max_retries=3):
 
     return input_url_list  # capture_request_urls
 
-def run():
-    connection, channel = connect_to_rabbitmq()
+def send_to_rabbit(url_list):
+    # rabbitMQ Configuration
+    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
+    rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
+    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+    command_queue = os.getenv('COMMAND_QUEUE_NAME', 'crawl_commands')
+    url_queue = os.getenv('URL_QUEUE_NAME', 'crawl_results')
 
-    queue_name = os.getenv('URL_QUEUE_NAME', 'default_queue')  # Default queue name if not set
-
-    start_url = "https://www.mcdonalds.com/no/nb-no/meny/nutrition-calculator.html"
-    url_list = []
-
-    url_list = capture_request_urls(start_url, url_list)
-
-    for url in url_list:
-        channel.basic_publish(exchange='', routing_key=queue_name, body=url)
-        logging.info(f"Published URL to queue: {url}")
-
-    connection.close()
-    logging.info("RabbitMQ connection closed.")
-
-if __name__ == "__main__":
     try:
-        run()
+        credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
+        parameters = pika.ConnectionParameters(
+            host=rabbitmq_host,
+            port=rabbitmq_port,
+            credentials=credentials
+        )
+
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
+        channel.queue_declare(queue=url_queue, durable=True)
+        message = json.dumps(url_list)
+        channel.basic_publish(
+            exchange='',
+            routing_key=url_queue,
+            body=message,
+            properties=pika.BasicProperties(
+                delivery_mode=2,
+            ))
+
+        logging.info(f"Sent {len(url_list)} URLs to queue '{url_queue}'")
+
     except Exception as e:
-        logging.error(f"An unexpected error occurred in the main execution: {e}")
-        logging.error(traceback.format_exc())
+        logging.error(f"Failed to send URLs to RabbitMQ: {e}")
     finally:
+        if 'connection' in locals() and connection.is_open:
+            connection.close() # send_to_rabbit
+
+def on_message(ch, method, body):
+    message = body.decode('utf-8')
+    logging.info(f"Received message: {message}")
+
+    if message.strip().lower() == "run":
+        logging.info("Starting crawler(s)")
+        url_list = []
+        url_list = capture_request_urls(mcdonalds_url, url_list)
+        send_to_rabbit(url_list)
+        logging.info("Crawl process completed.")
+    else:
+        logging.warning(f"Unknown command received: {message}")
+
+    ch.basic_ack(delivery_tag=method.delivery_tag) # on_message
+
+def start_consumer(rabbitmq_username, rabbitmq_password, rabbitmq_host, rabbitmq_port, command_queue):
+    try:
+        credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
+        parameters = pika.ConnectionParameters(
+            host=rabbitmq_host,
+            port=rabbitmq_port,
+            credentials=credentials
+        )
+
+        connection = pika.BlockingConnection(parameters)
+        channel = connection.channel()
+        channel.queue_declare(queue=command_queue, durable=True)
+        channel.basic_qos(prefetch_count=1)
+        channel.basic_consume(queue=command_queue, on_message_callback=on_message)
+
+        logging.info(f"Waiting for messages in queue '{command_queue}'. To exit press CTRL+C")
+        channel.start_consuming()
+
+    except Exception as e:
+        logging.error(f"Error in RabbitMQ consumer: {e}")
+    finally:
+        if 'connection' in locals() and connection.is_open:
+            connection.close() # start_consumer
+
+def graceful_shutdown(sig, frame):
+    logging.info("Shutting down gracefully...")
+    try:
         server.stop()
         driver.quit()
-        logging.info("Browsermob-Proxy server stopped and Selenium WebDriver closed.")
+    except Exception as e:
+        logging.error(f"Error during shutdown: {e}")
+    sys.exit(0) # graceful_shutdown
+
+def run():
+    # signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+
+    # rabbitMQ Configuration
+    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
+    rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
+    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+    command_queue = os.getenv('COMMAND_QUEUE_NAME', 'crawl_commands')
+
+    start_consumer(rabbitmq_username, rabbitmq_password, rabbitmq_host, rabbitmq_port, command_queue) # run
+
+if __name__ == "__main__":
+    run()
