@@ -29,7 +29,6 @@ logging.basicConfig(
     ]
 )
 
-
 def connect_to_rabbitmq():
     try:
         credentials = pika.PlainCredentials(
@@ -205,7 +204,6 @@ def capture_request_urls(start_url, input_url_list, max_retries=3):
 
     return input_url_list  # capture_request_urls
 
-
 def run():
     connection, channel = connect_to_rabbitmq()
 
@@ -216,14 +214,12 @@ def run():
 
     url_list = capture_request_urls(start_url, url_list)
 
-    logging.info("\n\n#################################################\n\n")
     for url in url_list:
         channel.basic_publish(exchange='', routing_key=queue_name, body=url)
         logging.info(f"Published URL to queue: {url}")
 
     connection.close()
     logging.info("RabbitMQ connection closed.")
-
 
 if __name__ == "__main__":
     try:
