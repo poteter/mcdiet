@@ -2,11 +2,10 @@ import json
 import os
 
 import pika
-import re
 import requests
 from dotenv import load_dotenv
 
-load_dotenv('environment/codeAndCal.env')
+load_dotenv('../environment/codeAndCal.env')
 
 ## get parameters from queue
 def get_parameters_from_queue(queue_name):
