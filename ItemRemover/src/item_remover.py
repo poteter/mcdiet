@@ -3,7 +3,7 @@ import pika
 import requests
 from dotenv import load_dotenv
 
-load_dotenv('environment/remover.env')
+load_dotenv('../environment/remover.env')
 
 def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
     codes = []
