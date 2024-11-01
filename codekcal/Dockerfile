@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM python:3.9-slim
 LABEL authors="Eivind"
 
 ENV PYTHONDONTWRITEBYTECODE=1
