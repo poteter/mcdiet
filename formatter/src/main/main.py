@@ -1,9 +1,9 @@
 import pika
 import os
 from dotenv import load_dotenv
-from formatter.src.formatter.bk import bk_formatter
-from formatter.src.formatter.mcd import mcd_formatter
-load_dotenv('../environment/formatter.env')
+from src.formatter.bk import bk_formatter
+from src.formatter.mcd import mcd_formatter
+load_dotenv('../../environment/formatter.env')
 
 def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
     codes = []

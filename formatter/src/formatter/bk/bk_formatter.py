@@ -1,13 +1,11 @@
 import json
 import os
 
-import requests
-
 from urllib.request import urlopen
 
 from dotenv import load_dotenv
 
-load_dotenv('../../environment/formatter.env')
+load_dotenv('../../../environment/formatter.env')
 
 def find_menu_item_data(data_obj_json):
     menu_item_data = {

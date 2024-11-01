@@ -7,7 +7,7 @@ from urllib.request import urlopen
 
 from dotenv import load_dotenv
 
-load_dotenv('../../environment/formatter.env')
+load_dotenv('../../../environment/formatter.env')
 
 def find_menu_item_data(json_data):
     menu_item_data = {
