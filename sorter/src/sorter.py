@@ -2,14 +2,12 @@ import json
 import os
 from datetime import date, timedelta
 
-import requests
 import pika
-from urllib.request import urlopen
 from dotenv import load_dotenv
 from itertools import combinations
 import random
 
-load_dotenv('environment/sorter.env')
+load_dotenv('../environment/sorter.env')
 
 # M  = min(1drink + >= 1food) where Mc <= (Di/Md)
 # Mc = caloric content of a meal
