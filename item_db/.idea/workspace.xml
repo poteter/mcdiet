@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/mcCrawler/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/mcCrawler/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,6 +15,7 @@
       <list>
         <option value="Interface" />
         <option value="Class" />
+        <option value="Dockerfile" />
       </list>
     </option>
   </component>
@@ -51,7 +47,7 @@
     "Spring Boot.ItemDbApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/frontend",
+    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/gateway",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -98,6 +94,7 @@
       <workItem from="1728457358037" duration="793000" />
       <workItem from="1730370315053" duration="25000" />
       <workItem from="1730386219144" duration="132000" />
+      <workItem from="1730473251326" duration="204000" />
     </task>
     <servers />
   </component>
