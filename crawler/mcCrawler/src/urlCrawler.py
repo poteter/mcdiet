@@ -8,6 +8,7 @@ import time
 import logging
 
 import pika
+from pika import exceptions
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
