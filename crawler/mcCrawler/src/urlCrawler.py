@@ -18,8 +18,14 @@ from colorama import Back, Style
 from dotenv import load_dotenv
 from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException
 
+# variable to switch between docker and local run mode
+local_mode = False
+
 # Load environment variables
-load_dotenv('/app/environment/crawl.env')
+if local_mode:
+    load_dotenv('../environment/crawl.env')
+else:
+    load_dotenv('/app/environment/crawl.env')
 
 # Configure logging
 logging.basicConfig(
@@ -32,8 +38,13 @@ logging.basicConfig(
 )
 
 # Fetch environment variables for Browsermob-Proxy
-proxy_path = os.environ.get('BROWSERMOB_PROXY_PATH',
-                            '/app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy')
+if local_mode:
+    proxy_path = os.environ.get('BROWSERMOB_PROXY_PATH',
+                                '/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy')
+else:
+    proxy_path = os.environ.get('BROWSERMOB_PROXY_PATH',
+                                '/app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy')
+
 server = Server(proxy_path)
 server.start()
 proxy = server.create_proxy()
@@ -63,7 +74,11 @@ chrome_prefs = {
 }
 chrome_options.add_experimental_option("prefs", chrome_prefs)
 
-service = ChromeService(executable_path="/usr/local/bin/chromedriver")
+if local_mode:
+    service = ChromeService(executable_path="/usr/local/bin/chromedriver")
+else:
+    service = ChromeService(executable_path="/usr/local/bin/chromedriver")
+
 driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Set to True to enable console debug messages
