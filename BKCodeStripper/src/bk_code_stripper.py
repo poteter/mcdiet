@@ -5,6 +5,7 @@ import sys
 import threading
 from urllib.request import urlopen
 import pika
+from pika import exceptions
 from dotenv import load_dotenv
 import logging
 
