@@ -2,6 +2,7 @@ import json
 import os
 import signal
 import sys
+import threading
 import traceback
 import time
 import logging
@@ -20,6 +21,9 @@ from selenium.common.exceptions import StaleElementReferenceException, ElementCl
 
 # variable to switch between docker and local run mode
 local_mode = False
+
+# Global flag for graceful shutdown
+shutdown_flag = threading.Event()
 
 # Load environment variables
 if local_mode:
@@ -195,15 +199,7 @@ def capture_request_urls(start_url, input_url_list, max_retries=3):
 
     return input_url_list  # capture_request_urls
 
-def send_to_rabbit(url_list):
-    # rabbitMQ Configuration
-    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
-    rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
-    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
-    command_queue = os.getenv('COMMAND_QUEUE_NAME', 'crawl_commands')
-    url_queue = os.getenv('URL_QUEUE_NAME', 'crawl_results')
-
+def send_to_rabbit(url_list, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue):
     try:
         credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
         parameters = pika.ConnectionParameters(
@@ -232,67 +228,145 @@ def send_to_rabbit(url_list):
         if 'connection' in locals() and connection.is_open:
             connection.close() # send_to_rabbit
 
-def on_message(ch, method, body):
-    message = body.decode('utf-8')
-    logging.info(f"Received message: {message}")
+def run_crawl_sequence(mc_url, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue):
+    url_list = []
+    url_list = capture_request_urls(mc_url, url_list)
+    send_to_rabbit(url_list, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue)
 
-    if message.strip().lower() == "run":
-        logging.info("Starting crawler(s)")
-        url_list = []
-        url_list = capture_request_urls(mcdonalds_url, url_list)
-        send_to_rabbit(url_list)
-        logging.info("Crawl process completed.")
-    else:
-        logging.warning(f"Unknown command received: {message}")
+class ThreadConsumeRabbit(threading.Thread):
+    def __init__(self,
+                 exchange_name,
+                 exchange_type,
+                 queue_name,
+                 callback,
+                 rabbit_host,
+                 rabbit_port,
+                 rabbit_username,
+                 rabbit_password,
+                 mc_url):
+        super().__init__()
+        self.exchange_name = exchange_name
+        self.exchange_type = exchange_type
+        self.queue_name = queue_name
+        self.callback = callback
+        self.rabbit_host = rabbit_host
+        self.rabbit_port = rabbit_port
+        self.rabbit_username = rabbit_username
+        self.rabbit_password = rabbit_password
+        self.mc_url = mc_url
+        self.connection = None
+        self.channel = None
 
-    ch.basic_ack(delivery_tag=method.delivery_tag) # on_message
+    def run(self):
+        try:
+            credentials = pika.PlainCredentials(self.rabbit_username, self.rabbit_password)
+            parameters = pika.ConnectionParameters(
+                host=self.rabbit_host,
+                port=self.rabbit_port,
+                credentials=credentials,
+                heartbeat=600,
+                blocked_connection_timeout=300
+            )
 
-def start_consumer(rabbitmq_username, rabbitmq_password, rabbitmq_host, rabbitmq_port, command_queue):
-    try:
-        credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
-        parameters = pika.ConnectionParameters(
-            host=rabbitmq_host,
-            port=rabbitmq_port,
-            credentials=credentials
-        )
+            self.connection = pika.BlockingConnection(parameters)
+            self.channel = self.connection.channel()
 
-        connection = pika.BlockingConnection(parameters)
-        channel = connection.channel()
-        channel.queue_declare(queue=command_queue, durable=True)
-        channel.basic_qos(prefetch_count=1)
-        channel.basic_consume(queue=command_queue, on_message_callback=on_message)
+            # Declare the exchange
+            self.channel.exchange_declare(exchange=self.exchange_name, exchange_type=self.exchange_type, durable=True)
 
-        logging.info(f"Waiting for messages in queue '{command_queue}'. To exit press CTRL+C")
-        channel.start_consuming()
+            # Declare a temporary queue with a unique name
+            result = self.channel.queue_declare(queue='', exclusive=True)
+            temp_queue = result.method.queue
 
-    except Exception as e:
-        logging.error(f"Error in RabbitMQ consumer: {e}")
-    finally:
-        if 'connection' in locals() and connection.is_open:
-            connection.close() # start_consumer
+            # Bind the temporary queue to the exchange
+            self.channel.queue_bind(exchange=self.exchange_name, queue=temp_queue)
 
-def graceful_shutdown(sig, frame):
-    logging.info("Shutting down gracefully...")
-    try:
-        server.stop()
-        driver.quit()
-    except Exception as e:
-        logging.error(f"Error during shutdown: {e}")
-    sys.exit(0) # graceful_shutdown
+            logging.info(f"Waiting for messages in exchange '{self.exchange_name}'")
 
-def run():
-    # signal handlers for graceful shutdown
-    signal.signal(signal.SIGINT, graceful_shutdown)
-    signal.signal(signal.SIGTERM, graceful_shutdown)
+            # Start consuming
+            self.channel.basic_consume(
+                queue=temp_queue,
+                on_message_callback=self.on_message,
+                auto_ack=True
+            )
 
-    # rabbitMQ Configuration
+            # Start consuming in a loop
+            while not shutdown_flag.is_set():
+                self.connection.process_data_events(time_limit=1)
+
+        except pika.exceptions.AMQPConnectionError as e:
+            logging.error(f"Connection error: {e}")
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}")
+        finally:
+            if self.connection and not self.connection.is_closed:
+                self.connection.close()
+                logging.info("RabbitMQ connection closed.")
+
+    def on_message(self, ch, method, properties, body):
+        message = body.decode()
+        logging.info(f"Received message: {message}")
+        if message.strip().lower() == "run":
+            logging.info("Received 'run' command. Triggering run_crawl_sequence().")
+            run_crawl_sequence(self.mc_url, self.rabbit_host, self.rabbit_port, self.rabbit_username, self.rabbit_password, self.queue_name)
+
+    def stop(self):
+        if self.channel:
+            self.channel.stop_consuming()
+        if self.connection and not self.connection.is_closed:
+            self.connection.close()
+
+def graceful_shutdown(signum, frame):
+    logging.info(f"Received signal {signum}. Shutting down gracefully...")
+    shutdown_flag.set()
+
+def main():
+    # RabbitMQ Configuration for Consumer
+    exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'fanout_logs')
+    exchange_type = 'fanout'
+
+    # RabbitMQ Configuration for Publisher
+    url_queue_name = os.getenv('URL_QUEUE_NAME', 'code_queue')
+
+    # RabbitMQ general configuration
     rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
     rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
     rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
     rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
-    command_queue = os.getenv('COMMAND_QUEUE_NAME', 'crawl_commands')
 
-    start_consumer(rabbitmq_username, rabbitmq_password, rabbitmq_host, rabbitmq_port, command_queue) # run
+    # McDonald's product catalog URLs
+    mc_url = os.getenv('MCDONALDS_URL')
 
-if __name__ == "__main__":
-    run()
+    # Signal handlers for graceful shutdown
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+
+    # Initialize and start the RabbitMQ consumer thread
+    consumer = ThreadConsumeRabbit(
+        exchange_name=exchange_name,
+        exchange_type=exchange_type,
+        queue_name=url_queue_name,
+        callback=run_crawl_sequence,
+        rabbit_host=rabbitmq_host,
+        rabbit_port=rabbitmq_port,
+        rabbit_username=rabbitmq_username,
+        rabbit_password=rabbitmq_password,
+        mc_url=mc_url
+    )
+
+    consumer.start()
+
+    # Wait for shutdown flag
+    try:
+        while not shutdown_flag.is_set():
+            shutdown_flag.wait(timeout=1)
+    except KeyboardInterrupt:
+        logging.info("KeyboardInterrupt received.")
+    finally:
+        consumer.stop()
+        consumer.join()
+        logging.info("Application has been shut down gracefully.")
+
+
+if __name__ == '__main__':
+    main()
