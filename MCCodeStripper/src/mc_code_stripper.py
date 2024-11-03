@@ -1,10 +1,28 @@
+import logging
 import os
+import sys
+import threading
+import time
+
 import pika
 import re
-import requests
 from dotenv import load_dotenv
+from pika import exceptions
 
 load_dotenv('../environment/MCStripper.env')
+
+# global flag
+shutdown_flag = threading.Event()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("server.log")
+    ]
+)
 
 def get_codes_from_urls(urls):
     codes = []
@@ -16,67 +34,76 @@ def get_codes_from_urls(urls):
     int_codes = [eval(i) for i in codes]
     return int_codes # get_codes_from_urls
 
-def get_urls(rabbit_host, rabbit_port, rabbit_username, rabbit_password, queue_name):
-    credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
-    parameters = pika.ConnectionParameters(
-        host=rabbit_host,
-        port=rabbit_port,
-        credentials=credentials
-    )
-
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
-
-    urls = []
-
-    while True:
-        method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=True)
-
-        if method_frame:
-            urls.append(body.decode('utf-8'))
-        else:
-            break
-
-    connection.close()
-    return urls # get_urls
-
-def send_codes(rabbit_host, rabbit_port, rabbit_username, rabbit_password, codes, queue_name):
-    credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
-    parameters = pika.ConnectionParameters(
-        host=rabbit_host,
-        port=rabbit_port,
-        credentials=credentials
-    )
-
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
+def send_codes(codes, queue_name, ch):
+    ch.queue_declare(queue=queue_name, durable=True)
 
     for code in codes:
         str_code = str(code)
-        channel.basic_publish(exchange='', routing_key=queue_name, body=str_code)
-
-    connection.close() # send_codes
+        ch.basic_publish(exchange='', routing_key=queue_name, body=str_code)
+    # send_codes
 
 def add_meta_code(code_list):
     formatted_list = ["mcd-" + code for code in code_list]
     return formatted_list
 
+def on_message(ch, method, properties, body, param, args):
+    url_queue_name, code_queue_name = args
+
+    urls = body.decode('utf-8')
+    codes = get_codes_from_urls(urls)
+    formatted_codes = add_meta_code(codes)
+    send_codes(formatted_codes, code_queue_name, ch)
+
+def run_consumer(code_queue_name, url_queue_name):
+    if not code_queue_name or not url_queue_name:
+        logging.error("One or more required environment variables are missing. Exiting.")
+        sys.exit(1)
+
+    try:
+
+        # Establish connection
+        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+
+        # Declare the parameter queue
+        channel.queue_declare(queue=code_queue_name, durable=True)
+
+        # Define the callback with additional arguments
+        channel.basic_consume(
+            queue=code_queue_name,
+            on_message_callback=lambda ch, method, properties, body, param, args: on_message(
+                ch, method, properties, body, args, (url_queue_name, code_queue_name)
+            ),
+            auto_ack=True
+        )
+
+        logging.info(f"waiting for message from {code_queue_name}")
+
+        # Start consuming in a separate thread to allow graceful shutdown
+        consume_thread = threading.Thread(target=channel.start_consuming)
+        consume_thread.start()
+
+        while not shutdown_flag.is_set():
+            time.sleep(1)
+
+        channel.stop_consuming()
+        consume_thread.join()
+        connection.close()
+        logging.info("RabbitMQ consumer has been shut down gracefully.")
+
+    except pika.exceptions.AMQPConnectionError as e:
+        logging.error(f"AMQP connection error: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    # run_consumer
+
 def run():
     code_queue_name = os.getenv("CODE_QUEUE_NAME")
     url_queue_name = os.getenv("URL_QUEUE_NAME")
 
-    # rabbitMQ Configuration
-    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
-    rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
-    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
-
-    urls = get_urls(rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue_name)
-    codes = get_codes_from_urls(urls)
-    formatted_codes = add_meta_code(codes)
-    send_codes(rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, formatted_codes, code_queue_name)
+    logging.info("Starting RabbitMQ consumer.")
+    run_consumer(code_queue_name, url_queue_name)
+    logging.info("Consumer stopped.")
 
 if __name__ == '__main__':
     run()
