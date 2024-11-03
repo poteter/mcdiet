@@ -1,37 +1,33 @@
+import logging
 import os
+import signal
+import sys
+import threading
+import time
+
+from pika import exceptions
 import pika
 import requests
 from dotenv import load_dotenv
 
 load_dotenv('../environment/remover.env')
 
-def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
-    codes = []
-    credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
-    parameters = pika.ConnectionParameters(
-        host=rabbit_host,
-        port=rabbit_port,
-        credentials=credentials
-    )
+# global flag
+shutdown_flag = threading.Event()
 
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
-
-    while True:
-        method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=True)
-
-        if method_frame:
-            codes.append(body.decode('utf-8'))
-        else:
-            break
-
-    connection.close()
-    return codes # get_codes_from_queue
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("server.log")
+    ]
+)
 
 def delete_items(codes, db_port):
     if not db_port:
-        raise ValueError("Environment variable 'DB_PORT' is not set.")
+        logging.error("db_port is empty")
 
     for code in codes:
         api_url = f'http://localhost:{db_port}/api/item/codes/{code}'
@@ -44,18 +40,69 @@ def delete_items(codes, db_port):
 
     # delete_items
 
+def on_message(ch, method, props, body, param, args):
+    non_carry_code_queue, db_port = args
+
+    queue_codes = body.decode('utf-8')
+    delete_items(queue_codes, db_port)
+
+def run_consumer(db_port, non_carry_code_queue):
+    if not db_port:
+        logging.error("Environment variable 'DB_PORT' is not set.")
+        sys.exit(1)
+
+    try:
+        # Establish connection
+        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+
+        # Declare the parameter queue
+        channel.queue_declare(queue=non_carry_code_queue, durable=True)
+
+        # Define the callback with additional arguments
+        channel.basic_consume(
+            queue=non_carry_code_queue,
+            on_message_callback=lambda ch, method, properties, body, param, args: on_message(
+                ch, method, properties, body, args, (non_carry_code_queue, db_port)
+            ),
+            auto_ack=True
+        )
+
+        logging.info(f"waiting for message from {non_carry_code_queue}")
+
+        # Start consuming in a separate thread to allow graceful shutdown
+        consume_thread = threading.Thread(target=channel.start_consuming)
+        consume_thread.start()
+
+        while not shutdown_flag.is_set():
+            time.sleep(1)
+
+        channel.stop_consuming()
+        consume_thread.join()
+        connection.close()
+        logging.info("RabbitMQ consumer has been shut down gracefully.")
+
+    except pika.exceptions.AMQPConnectionError as e:
+        logging.error(f"AMQP connection error: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    # run_consumer
+
+def graceful_shutdown(signal, frame):
+    shutdown_flag.set()
+    logging.info(f"Signal {signal} received. Shutting down.")
+
 def run():
     db_port = os.getenv('DB_PORT')
     non_carry_code_queue = os.getenv('NON_CARRY_CODES_QUEUE_NAME')
 
-    # rabbitMQ Configuration
-    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
-    rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
-    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+    # signal handlers
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
 
-    queue_codes = get_codes_from_queue(non_carry_code_queue, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password)
-    delete_items(queue_codes, db_port)
+    logging.info("Starting RabbitMQ consumer.")
+    run_consumer(non_carry_code_queue, db_port)
+    logging.info("Consumer stopped.")
     # run
 
 if __name__ == '__main__':
