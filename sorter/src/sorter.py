@@ -1,13 +1,32 @@
 import json
+import logging
 import os
+import signal
+import sys
+import threading
+import time
 from datetime import date, timedelta
-
+import requests
+from pika import exceptions
 import pika
 from dotenv import load_dotenv
 from itertools import combinations
 import random
 
 load_dotenv('../environment/sorter.env')
+
+# global flag
+shutdown_flag = threading.Event()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("server.log")
+    ]
+)
 
 # M  = min(1drink + >= 1food) where Mc <= (Di/Md)
 # Mc = caloric content of a meal
@@ -104,30 +123,31 @@ def append_plan_to_packet(user, calories, range, days, meals_per_day, calendar_d
                  'plan': calendar_days}
     return db_packet # append_plan_to_packet
 
-# get items from queue
-def get_items_from_queue(queue_name):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
+def send_to_db(packet, api_url):
+    if packet:
+        try:
+            response = requests.post(api_url, json=packet)
 
-    channel.queue_declare(queue=queue_name, durable=True)
+            if response.status_code == 200:
+                logging.info("Successfully sent data to the API.")
+                logging.info(f"Status code: {response.status_code}")
+            else:
+                logging.error(f"Failed to send data. Status code: {response.status_code}")
+            logging.error(f"Response: {response.text}")
 
-    items = ""
+        except requests.exceptions.RequestException as e:
+            logging.error(f"An error occurred: {e}")
+    else:
+        logging.info("empty json")
+    # send_data
 
-    method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=True)
+def graceful_shutdown(signal, frame):
+    shutdown_flag.set()
+    logging.info(f"Signal {signal} received. Shutting down.")
 
-    if method_frame:
-        items = body.decode('utf-8')
-
-    connection.close()
-    return json.loads(items) # get_items_from_queue
-
-def send_to_db(packet):
-    return "" # send_to_db
-
-def run():
-    queue_name = os.getenv('CODE_KCAL_QUEUE')
-    items = get_items_from_queue(queue_name)
-    print(items)
+def on_message(ch, method, properties, body, param, args):
+    api_url = args
+    items = body.decode('utf-8')
 
     calories = items.get('calories')
     range = items.get('range')
@@ -138,27 +158,67 @@ def run():
 
     meals_per_day = items.get('mealsPerDay')
     meals = make_meals(items, range, calories, meals_per_day)
-    print(type(meals))
-    i = 0
-    for meal in meals:
-        if i < 10:
-            print(meal)
-            i += 1
-        else:
-            break
 
     calendar_days = make_days(meals, days, meals_per_day, Di_min, Di_max)
-    print(type(calendar_days))
-    n = 0
-    for day in calendar_days:
-        if n < 10:
-            print(day)
-            n += 1
-        else:
-            break
 
     db_packet = append_plan_to_packet(user, calories, range, days, meals_per_day, calendar_days)
-    print(db_packet)
+    send_to_db(db_packet, api_url)
+    # on_message
+
+def run_consumer(queue_name, api_url):
+    if not queue_name:
+        logging.error("One or more required environment variables are missing. Exiting.")
+        sys.exit(1)
+
+    try:
+        # Establish connection
+        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+
+        # Declare the parameter queue
+        channel.queue_declare(queue=queue_name, durable=True)
+
+        # Define the callback with additional arguments
+        channel.basic_consume(
+            queue=queue_name,
+            on_message_callback=lambda ch, method, properties, body, param, args: on_message(
+                ch, method, properties, body, args, api_url
+            ),
+            auto_ack=True
+        )
+
+        logging.info(f"waiting for message from {queue_name}")
+
+        # Start consuming in a separate thread to allow graceful shutdown
+        consume_thread = threading.Thread(target=channel.start_consuming)
+        consume_thread.start()
+
+        while not shutdown_flag.is_set():
+            time.sleep(1)
+
+        channel.stop_consuming()
+        consume_thread.join()
+        connection.close()
+        logging.info("RabbitMQ consumer has been shut down gracefully.")
+    except pika.exceptions.AMQPConnectionError as e:
+        logging.error(f"AMQP connection error: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    # run_consumer
+
+def run():
+    queue_name = os.getenv('CODE_KCAL_QUEUE')
+    db_port = os.getenv('DB_PORT')
+    api_url = f"http://localhost:{db_port}/api/item"
+
+    # signal handlers
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
+
+    logging.info("Starting RabbitMQ consumer.")
+    run_consumer(queue_name, api_url)
+    logging.info("Consumer stopped.")
+    # run
 
 if __name__ == "__main__":
     run()
