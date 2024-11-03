@@ -1,12 +1,31 @@
+import logging
 import os
+import signal
+import sys
+import threading
+import time
+
+from pika import exceptions
 import pika
 import requests
 from dotenv import load_dotenv
 
 load_dotenv('../environment/dupe.env')
 
-def get_codes_from_db(db_port):
-    api_url = f'http://localhost:{db_port}/api/item/codes'
+# global flag
+shutdown_flag = threading.Event()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler("server.log")
+    ]
+)
+
+def get_codes_from_db(api_url):
     try:
         response = requests.get(api_url)
         response.raise_for_status()
@@ -15,60 +34,89 @@ def get_codes_from_db(db_port):
         if isinstance(codes, list):
             return codes
         else:
-            print("Unexpected data format: Expected a list of codes.")
+            logging.error("Unexpected data format: Expected a list of codes.")
             return []
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred: {e}")
+        logging.error(f"An error occurred: {e}")
         return []
     # get_codes_from_db
 
+## returns a list of item codes that is not in the database but is in queue
 def get_new_item_codes(queue_codes, db_codes):
     return list(set(queue_codes) - set(db_codes)) # get_new_item_codes
 
+## returns a list of item codes that is in the queue but not in database
 def get_non_carry_item_codes(queue_codes, db_codes):
     return list(set(db_codes) - set(queue_codes)) # get_non_carry_item_codes
 
-def get_codes_from_queue(queue_name, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
-    codes = []
-    credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
-    parameters = pika.ConnectionParameters(
-        host=rabbit_host,
-        port=rabbit_port,
-        credentials=credentials
-    )
-
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
-
-    while True:
-        method_frame, header_frame, body = channel.basic_get(queue=queue_name, auto_ack=True)
-
-        if method_frame:
-            codes.append(body.decode('utf-8'))
-        else:
-            break
-
-    connection.close()
-    return codes # get_codes_from_queue
-
-def send_codes(codes, queue_name, rabbit_host, rabbit_port, rabbit_username, rabbit_password):
-    credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
-    parameters = pika.ConnectionParameters(
-        host=rabbit_host,
-        port=rabbit_port,
-        credentials=credentials
-    )
-
-    connection = pika.BlockingConnection(parameters)
-    channel = connection.channel()
-    channel.queue_declare(queue=queue_name, durable=True)
-
+def send_codes(codes, queue_name, channel):
     for code in codes:
         str_code = str(code)
         channel.basic_publish(exchange='', routing_key=queue_name, body=str_code)
 
-    connection.close()  # send_carry_code
+def on_message(ch, method, properties, body, params, args):
+    carry_code_queue, non_carry_code_queue, api_url = args
+
+    # get codes from database and code queue
+    db_codes = get_codes_from_db(api_url)
+    queue_codes = body.decode('utf-8')
+
+    # get lists of new and deprecated item codes
+    new_item_codes = get_new_item_codes(queue_codes, db_codes)
+    non_carry_item_codes = get_non_carry_item_codes(queue_codes, db_codes)
+
+    # send codes of new items to the new item queue
+    send_codes(new_item_codes, carry_code_queue, ch)
+
+    #  send codes of items no longer carried to the non carry item queue
+    send_codes(non_carry_item_codes, non_carry_code_queue, ch) # on_message
+
+def run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_url):
+    if not carry_code_queue or not non_carry_code_queue or not code_queue_name or not api_url:
+        logging.error("One or more required environment variables are missing. Exiting.")
+        sys.exit(1)
+
+    try:
+
+        # Establish connection
+        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+
+        # Declare the parameter queue
+        channel.queue_declare(queue=code_queue_name, durable=True)
+
+        # Define the callback with additional arguments
+        channel.basic_consume(
+            queue=code_queue_name,
+            on_message_callback=lambda ch, method, properties, body, args: on_message(
+                ch, method, properties, body, args, (carry_code_queue, non_carry_code_queue, api_url)
+            ),
+            auto_ack=True
+        )
+
+        logging.info(f"waiting for message from {code_queue_name}")
+
+        # Start consuming in a separate thread to allow graceful shutdown
+        consume_thread = threading.Thread(target=channel.start_consuming)
+        consume_thread.start()
+
+        while not shutdown_flag.is_set():
+            time.sleep(1)
+
+        channel.stop_consuming()
+        consume_thread.join()
+        connection.close()
+        logging.info("RabbitMQ consumer has been shut down gracefully.")
+
+    except pika.exceptions.AMQPConnectionError as e:
+        logging.error(f"AMQP connection error: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    # run_consumer
+
+def graceful_shutdown(signal, frame):
+    shutdown_flag.set()
+    logging.info(f"Signal {signal} received. Shutting down.")
 
 def run():
     db_port = os.getenv('DB_PORT')
@@ -76,25 +124,16 @@ def run():
     non_carry_code_queue = os.getenv('NON_CARRY_CODES_QUEUE_NAME')
     code_queue_name = os.getenv('CODE_QUEUE_NAME')
 
-    # rabbitMQ Configuration
-    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
-    rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
-    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+    # database GET request uri for all item codes
+    api_url = f'http://localhost:{db_port}/api/item/codes'
 
-    # get codes from database and code queue
-    db_codes = get_codes_from_db(db_port)
-    queue_codes = get_codes_from_queue(code_queue_name, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password)
+    # signal handlers
+    signal.signal(signal.SIGINT, graceful_shutdown)
+    signal.signal(signal.SIGTERM, graceful_shutdown)
 
-    # get lists of new and deprecated item codes
-    new_item_codes = get_new_item_codes(queue_codes, db_codes)
-    non_carry_item_codes = get_non_carry_item_codes(queue_codes, db_codes)
-
-    # send codes of new items to the new item queue
-    send_codes(new_item_codes, carry_code_queue, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password)
-
-    #  send codes of items no longer carried to the non carry item queue
-    send_codes(non_carry_item_codes, non_carry_code_queue, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password)
+    logging.info("Starting RabbitMQ consumer.")
+    run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_url)
+    logging.info("Consumer stopped.")
     # run
 
 if __name__ == '__main__':
