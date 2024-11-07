@@ -1,0 +1,21 @@
+2024-11-04 15:56:10,558 - INFO - DBCodeKcal
+2024-11-04 15:56:10,558 - INFO - 8066
+2024-11-04 15:56:10,558 - INFO - Starting RabbitMQ consumer.
+2024-11-04 15:56:12,839 - ERROR - Address resolution failed: gaierror(11001, 'getaddrinfo failed')
+2024-11-04 15:56:12,839 - ERROR - getaddrinfo failed: gaierror(11001, 'getaddrinfo failed').
+2024-11-04 15:56:12,839 - ERROR - AMQP connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - gaierror(11001, 'getaddrinfo failed'); first exception - None.
+2024-11-04 15:56:12,840 - ERROR - AMQPConnectionWorkflow - reporting failure: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - gaierror(11001, 'getaddrinfo failed'); first exception - None
+2024-11-04 15:56:12,849 - ERROR - Connection workflow failed: AMQPConnectionWorkflowFailed: 1 exceptions in all; last exception - gaierror(11001, 'getaddrinfo failed'); first exception - None
+2024-11-04 15:56:12,849 - ERROR - Error in _create_connection().
+Traceback (most recent call last):
+  File "D:\skole\semester5\microservices\mcdiet\sorter\.venv\Lib\site-packages\pika\adapters\blocking_connection.py", line 451, in _create_connection
+    raise self._reap_last_connection_workflow_error(error)
+  File "D:\skole\semester5\microservices\mcdiet\sorter\.venv\Lib\site-packages\pika\adapters\utils\selector_ioloop_adapter.py", line 565, in _resolve
+    result = socket.getaddrinfo(self._host, self._port, self._family,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Eivind\AppData\Local\Programs\Python\Python312\Lib\socket.py", line 976, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+2024-11-04 15:56:12,861 - ERROR - Unexpected error: [Errno 11001] getaddrinfo failed
+2024-11-04 15:56:12,861 - INFO - Consumer stopped.

@@ -16,7 +16,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from browsermobproxy import Server
-from colorama import Back, Style
 from dotenv import load_dotenv
 from selenium.common.exceptions import StaleElementReferenceException, ElementClickInterceptedException
 
@@ -45,7 +44,7 @@ logging.basicConfig(
 # Fetch environment variables for Browsermob-Proxy
 if local_mode:
     proxy_path = os.environ.get('BROWSERMOB_PROXY_PATH',
-                                '/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy')
+                                'browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy')
 else:
     proxy_path = os.environ.get('BROWSERMOB_PROXY_PATH',
                                 '/app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy')
@@ -323,17 +322,17 @@ def graceful_shutdown(signum, frame):
 
 def main():
     # RabbitMQ Configuration for Consumer
-    exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'fanout_logs')
+    exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'runTriggerFanoutExchange')
     exchange_type = 'fanout'
 
     # RabbitMQ Configuration for Publisher
     url_queue_name = os.getenv('URL_QUEUE_NAME', 'code_queue')
 
     # RabbitMQ general configuration
-    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
+    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
     rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
-    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'admin')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'admin')
 
     # McDonald's product catalog URLs
     mc_url = os.getenv('MCDONALDS_URL')

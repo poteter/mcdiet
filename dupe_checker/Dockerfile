@@ -6,10 +6,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY src/reuirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY /src ./src/
-COPY /environment ./environment/
+COPY src/ ./src/
+COPY environment/ ./environment/
 
-CMD["python", "src/DupeCheck.py"]
+CMD ["python", "src/DupeCheck.py"]

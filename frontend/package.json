@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "proxy": "http://localhost:8081"
+    "proxy": "http://frontend-docker:5173"
   },
   "dependencies": {
     "axios": "^1.7.7",

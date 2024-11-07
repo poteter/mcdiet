@@ -1,12 +1,12 @@
 spring:
+  application:
+    name: menu_db
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: menu_plan_db
+      uri: ${SPRING_DATA_MONGODB_URI}
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

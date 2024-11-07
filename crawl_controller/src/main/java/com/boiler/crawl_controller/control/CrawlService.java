@@ -16,6 +16,6 @@ public class CrawlService {
     }
 
     public void runCrawl() {
-        rabbitTemplate.convertAndSend(RabbitMQConfig.QUEUE_NAME, "run");
+        rabbitTemplate.convertAndSend(RabbitMQConfig.FANOUT_EXCHANGE_NAME, "run");
     }
 }

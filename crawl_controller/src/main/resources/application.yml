@@ -1,15 +1,19 @@
 spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin
+    password: admin
   application:
     name: crawl_controller
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         service-name: ${spring.application.name}
         health-check-interval: 10s
         health-check-path: /actuator/health
-        # Optional: Configure how the gateway discovers services
         default-query-tag: http
         prefer-ip-address: true
         register: true

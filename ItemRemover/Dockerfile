@@ -6,10 +6,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY src/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY /src ./src/
-COPY /environment ./environment/
+COPY src/ ./src/
+COPY environment/ ./environment/
 
-CMD["python", "src/item_remover.py"]
+CMD ["python", "src/item_remover.py"]

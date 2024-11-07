@@ -5,13 +5,10 @@ import sys
 import threading
 import signal
 import time
-
 import pika
 from pika import exceptions
 import requests
 from dotenv import load_dotenv
-
-load_dotenv('../environment/codeAndCal.env')
 
 # global flag
 shutdown_flag = threading.Event()
@@ -106,14 +103,15 @@ def on_message(channel, method, properties, body, param, args):
         send_packet_to_queue(channel, codekcal_queue_name, packet)
 
 ## starts the rabbit channel as a separate thread and consumes the parameter queue
-def run_consumer(param_queue_name, codekcal_queue_name, gw_port, item_db_uri):
+def run_consumer(param_queue_name, codekcal_queue_name, gw_port, item_db_uri, rabbitmq_user, rabbitmq_password):
     if not param_queue_name or not codekcal_queue_name or not gw_port or not item_db_uri:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
 
     try:
         # Establish connection
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -147,17 +145,25 @@ def run_consumer(param_queue_name, codekcal_queue_name, gw_port, item_db_uri):
         logging.error(f"Unexpected error: {e}")
 
 def run():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/codeAndCal.env')
+    else:
+        load_dotenv('../environment/codeAndCal.env')
+
     param_queue_name = os.getenv("PARAM_QUEUE_NAME")
     codekcal_queue_name = os.getenv("CODEKCAL_QUEUE_NAME")
     item_db_uri = f'http://localhost:{os.getenv("GW_PORT")}/itemController/api/item/codecal'
     gw_port = os.getenv("GW_PORT")
+    rabbitmq_user = os.getenv('RABBITMQ_USER')
+    rabbitmq_password = os.getenv('RABBITMQ_PASS')
 
     # signal handlers
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(param_queue_name, codekcal_queue_name, gw_port, item_db_uri)
+    run_consumer(param_queue_name, codekcal_queue_name, gw_port, item_db_uri, rabbitmq_user, rabbitmq_password)
     logging.info("Consumer stopped.")
 
 if __name__ == '__main__':

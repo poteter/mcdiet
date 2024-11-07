@@ -1,9 +1,9 @@
 spring:
   application:
-    name: item_db_controller
+    name: item_db
   cloud:
     consul:
-      host: localhost
+      host: consul
       port: 8500
       discovery:
         instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
@@ -24,6 +24,10 @@ spring:
   h2:
     console:
       enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
 

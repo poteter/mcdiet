@@ -20,6 +20,27 @@ spring:
             - Method=POST
           filters:
             - StripPrefix=1
+        - id: user_params
+          uri: http://userparameters:8888
+          predicates:
+            - Path=/user_params/api/user/**
+            - Method=POST
+          filters:
+            - StripPrefix=1
+        - id: item_db
+          uri: http://itemdb:8008
+          predicates:
+            - Path=/item_db/api/item/**
+            - Method=POST, GET
+          filters:
+            - StripPrefix=1
+        - id: menu_db
+          uri: http://menudb:8066
+          predicates:
+            - Path=/menu_db/api/plan/**
+            - Method=GET
+          filters:
+            - StripPrefix=1
       discovery:
         locator:
           enabled: true

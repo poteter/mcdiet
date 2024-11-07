@@ -4,7 +4,73 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="" />
+    <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/.idea/BKCodeStripper.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/.idea/BKCodeStripper.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/environment/BKstripper.env" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/environment/BKstripper.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/src/bk_code_stripper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/src/bk_code_stripper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/BKCodeStripper.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/environment/BKstripper.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/src/bk_code_stripper.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../BKCrawler/src/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ItemRemover/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../ItemRemover/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ItemRemover/environment/remover.env" beforeDir="false" afterPath="$PROJECT_DIR$/../ItemRemover/environment/remover.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../ItemRemover/src/item_remover.py" beforeDir="false" afterPath="$PROJECT_DIR$/../ItemRemover/src/item_remover.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MCCodeStripper/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../MCCodeStripper/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MCCodeStripper/environment/MCStripper.env" beforeDir="false" afterPath="$PROJECT_DIR$/../MCCodeStripper/environment/MCStripper.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MCCodeStripper/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../MCCodeStripper/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MCCodeStripper/src/mc_code_stripper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MCCodeStripper/src/mc_code_stripper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../codekcal/.idea/codekcal.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/.idea/codekcal.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../codekcal/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../codekcal/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../codekcal/environment/codeAndCal.env" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/environment/codeAndCal.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../codekcal/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../codekcal/src/codesAndCals.py" beforeDir="false" afterPath="$PROJECT_DIR$/../codekcal/src/codesAndCals.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawl_controller/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../crawl_controller/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawl_controller/src/main/java/com/boiler/crawl_controller/control/CrawlService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../crawl_controller/src/main/java/com/boiler/crawl_controller/control/CrawlService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawl_controller/src/main/java/com/boiler/crawl_controller/rabbitmq_config/RabbitMQConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../crawl_controller/src/main/java/com/boiler/crawl_controller/rabbitmq_config/RabbitMQConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawl_controller/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../crawl_controller/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawler/.idea/crawler.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/.idea/crawler.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawler/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawler/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawler/environment/crawl.env" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/environment/crawl.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../crawler/src/urlCrawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/src/urlCrawler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/.idea/dupe_checker.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/.idea/dupe_checker.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/environment/dupe.env" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/environment/dupe.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/src/DupeCheck.py" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/src/DupeCheck.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/environment/formatter.env" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/environment/formatter.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend/vite.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gateway/src/main/resources/application.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../gateway/src/main/resources/application.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../menu_plan_db/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../menu_plan_db/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../menu_plan_db/mvnw" beforeDir="false" afterPath="$PROJECT_DIR$/../menu_plan_db/mvnw" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/PlanController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/java/com/mcdiet/menu_plan_db/plan/PlanController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../menu_plan_db/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../menu_plan_db/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sorter/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../sorter/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sorter/.idea/sorter.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../sorter/.idea/sorter.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sorter/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../sorter/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sorter/environment/sorter.env" beforeDir="false" afterPath="$PROJECT_DIR$/../sorter/environment/sorter.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sorter/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../sorter/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sorter/src/sorter.py" beforeDir="false" afterPath="$PROJECT_DIR$/../sorter/src/sorter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user_parameters/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../user_parameters/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user_parameters/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../user_parameters/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user_parameters/src/main/java/com/boiler/user_parameters/parameters/ParameterService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../user_parameters/src/main/java/com/boiler/user_parameters/parameters/ParameterService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user_parameters/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../user_parameters/src/main/resources/application.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,12 +113,13 @@
     "Spring Boot.ItemDbApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/gateway",
+    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/item_db",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -95,6 +162,17 @@
       <workItem from="1730370315053" duration="25000" />
       <workItem from="1730386219144" duration="132000" />
       <workItem from="1730473251326" duration="204000" />
+      <workItem from="1730709916946" duration="8000" />
+      <workItem from="1730712270880" duration="306000" />
+      <workItem from="1730712762234" duration="31000" />
+      <workItem from="1730712915809" duration="9000" />
+      <workItem from="1730713846378" duration="19000" />
+      <workItem from="1730717208299" duration="14000" />
+      <workItem from="1730719543972" duration="17000" />
+      <workItem from="1730900639757" duration="1034000" />
+      <workItem from="1730970571036" duration="225000" />
+      <workItem from="1730976192149" duration="1061000" />
+      <workItem from="1730979586817" duration="598000" />
     </task>
     <servers />
   </component>

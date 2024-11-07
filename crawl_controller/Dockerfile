@@ -8,6 +8,9 @@ COPY mvnw pom.xml ./
 
 RUN ./mvnw dependency:go-offline -B
 
+RUN chmod +x mvnw
+RUN ./mvnw dependency:go-offline -B
+
 COPY src/ src/
 
 RUN ./mvnw clean package -DskipTests
@@ -19,6 +22,6 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8888
+EXPOSE 8086
 
 ENTRYPOINT ["java","-jar","app.jar"]

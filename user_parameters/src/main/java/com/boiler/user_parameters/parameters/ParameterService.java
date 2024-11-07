@@ -22,7 +22,10 @@ public class ParameterService {
 
     private void sendMessage(String message) {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
+        factory.setHost("rabbitmq");
+        factory.setPort(5672);
+        factory.setUsername("admin");
+        factory.setPassword("admin");
         try (Connection connection = factory.newConnection();
              Channel channel = connection.createChannel()) {
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);

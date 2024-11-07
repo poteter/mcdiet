@@ -4,13 +4,10 @@ import signal
 import sys
 import threading
 import time
-
 from pika import exceptions
 import pika
 import requests
 from dotenv import load_dotenv
-
-load_dotenv('../environment/dupe.env')
 
 # global flag
 shutdown_flag = threading.Event()
@@ -71,7 +68,7 @@ def on_message(ch, method, properties, body, params, args):
     #  send codes of items no longer carried to the non carry item queue
     send_codes(non_carry_item_codes, non_carry_code_queue, ch) # on_message
 
-def run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_url):
+def run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_url, rabbitmq_username, rabbitmq_password):
     if not carry_code_queue or not non_carry_code_queue or not code_queue_name or not api_url:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
@@ -79,7 +76,8 @@ def run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_ur
     try:
 
         # Establish connection
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -119,10 +117,18 @@ def graceful_shutdown(signal, frame):
     logging.info(f"Signal {signal} received. Shutting down.")
 
 def run():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/dupe.env')
+    else:
+        load_dotenv('../environment/dupe.env')
+
     db_port = os.getenv('DB_PORT')
     carry_code_queue = os.getenv('CARRY_CODES_QUEUE_NAME')
     non_carry_code_queue = os.getenv('NON_CARRY_CODES_QUEUE_NAME')
     code_queue_name = os.getenv('CODE_QUEUE_NAME')
+    rabbitmq_username = os.getenv('RABBITMQ_USERNAME')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD')
 
     # database GET request uri for all item codes
     api_url = f'http://localhost:{db_port}/api/item/codes'
@@ -132,7 +138,7 @@ def run():
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_url)
+    run_consumer(carry_code_queue, non_carry_code_queue, code_queue_name, api_url, rabbitmq_username, rabbitmq_password)
     logging.info("Consumer stopped.")
     # run
 

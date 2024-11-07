@@ -169,17 +169,17 @@ def graceful_shutdown(signum, frame):
 
 def main():
     # RabbitMQ Configuration for Consumer
-    exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'fanout_logs')
+    exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'runTriggerFanoutExchange')
     exchange_type = 'fanout'
 
     # RabbitMQ Configuration for Publisher
     code_queue_name = os.getenv('CODE_QUEUE_NAME', 'code_queue')
 
     # RabbitMQ general configuration
-    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
+    rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
     rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'guest')
-    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'guest')
+    rabbitmq_username = os.getenv('RABBITMQ_USERNAME', 'admin')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD', 'admin')
 
     # Burger King product catalog URL
     bk_url = os.getenv('BK_URL')

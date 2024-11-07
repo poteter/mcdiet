@@ -1,7 +1,36 @@
 services:
-  
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"       # MongoDB default port
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example  # **Note:** Use strong passwords in production
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mc_network
+    healthcheck:
+      test: [
+        "CMD",
+        "mongosh",
+        "--username",
+        "root",
+        "--password",
+        "example",
+        "--authenticationDatabase",
+        "admin",
+        "--eval",
+        "db.adminCommand('ping')"
+      ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   consul:
-    image: consul:latest
+    image: hashicorp/consul:latest
     container_name: consul
     restart: unless-stopped
     ports:
@@ -22,7 +51,12 @@ services:
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: adminpassword
+      RABBITMQ_DEFAULT_PASS: admin
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
@@ -33,18 +67,22 @@ services:
       context: ./gateway
     container_name: gateway-service
     ports:
-      - "8080:8080"
+      - "8081:8081"
     networks:
       - mc_network
+    depends_on:
+      - consul
 
   user_params:
     build:
       context: ./user_parameters
-    container_name: user_params-service
+    container_name: userparameters
     ports:
       - "8888:8888"
     networks:
       - mc_network
+    depends_on:
+      - consul
 
   codekcal:
     build:
@@ -52,6 +90,9 @@ services:
     container_name: codekcal-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   sorter:
     build:
@@ -59,33 +100,53 @@ services:
     container_name: sorter-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   menu_db:
     build:
       context: ./menu_plan_db
-    container_name: menu_db-service
+    container_name: menudb
     ports:
       - "8066:8066"
     networks:
       - mc_network
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://root:example@mongo:27017/menu_db?authSource=admin
+      SPRING_APPLICATION_NAME: menu_db
+      SPRING_CLOUD_CONSUL_HOST: consul
+      SPRING_CLOUD_CONSUL_PORT: 8500
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8066/actuator/health" ]  # Adjust if different
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   crawl_controller:
     build:
       context: ./crawl_controller
-    container_name: crawl_controller-service
+    container_name: crawlcontroller
     ports:
       - "8086:8086"
     networks:
       - mc_network
+    depends_on:
+      - consul
 
   item_db:
     build:
       context: ./item_db
-    container_name: item_db-service
+    container_name: itemdb
     ports:
       - "8008:8008"
     networks:
       - mc_network
+    depends_on:
+      - consul
 
   bk_code_stripper:
     build:
@@ -93,6 +154,9 @@ services:
     container_name: bk_code_stripper-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   mcd_crawler:
     build:
@@ -100,6 +164,9 @@ services:
     container_name: mc_crawler-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   mcd_code_stripper:
     build:
@@ -107,6 +174,9 @@ services:
     container_name: mcd_code_stripper-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   dupe_checker:
     build:
@@ -114,6 +184,9 @@ services:
     container_name: dupe_checker-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   dupe_remover:
     build:
@@ -121,6 +194,9 @@ services:
     container_name: remove_item-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   formatter:
     build:
@@ -128,15 +204,16 @@ services:
     container_name: formatter-service
     networks:
       - mc_network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   frontend:
     build:
-      context: ./frontend
+      context: .
     container_name: frontend-docker
     ports:
       - "5173:5173"
-    networks:
-      - mc_network
 
 networks:
   mc_network:
@@ -145,4 +222,6 @@ volumes:
   consul-data:
     driver: local
   rabbitmq-data:
+    driver: local
+  mongo-data:
     driver: local

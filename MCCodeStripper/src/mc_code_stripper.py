@@ -3,13 +3,10 @@ import os
 import sys
 import threading
 import time
-
 import pika
 import re
 from dotenv import load_dotenv
 from pika import exceptions
-
-load_dotenv('../environment/MCStripper.env')
 
 # global flag
 shutdown_flag = threading.Event()
@@ -54,15 +51,15 @@ def on_message(ch, method, properties, body, param, args):
     formatted_codes = add_meta_code(codes)
     send_codes(formatted_codes, code_queue_name, ch)
 
-def run_consumer(code_queue_name, url_queue_name):
+def run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_password):
     if not code_queue_name or not url_queue_name:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
 
     try:
-
         # Establish connection
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -98,11 +95,19 @@ def run_consumer(code_queue_name, url_queue_name):
     # run_consumer
 
 def run():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/MCStripper.env')
+    else:
+        load_dotenv('../environment/MCStripper.env')
+
     code_queue_name = os.getenv("CODE_QUEUE_NAME")
     url_queue_name = os.getenv("URL_QUEUE_NAME")
+    rabbitmq_user = os.getenv("RABBITMQ_USERNAME")
+    rabbitmq_password = os.getenv("RABBITMQ_PASSWORD")
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(code_queue_name, url_queue_name)
+    run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_password)
     logging.info("Consumer stopped.")
 
 if __name__ == '__main__':

@@ -4,13 +4,10 @@ import signal
 import sys
 import threading
 import time
-
 from pika import exceptions
 import pika
 import requests
 from dotenv import load_dotenv
-
-load_dotenv('../environment/remover.env')
 
 # global flag
 shutdown_flag = threading.Event()
@@ -46,14 +43,15 @@ def on_message(ch, method, props, body, param, args):
     queue_codes = body.decode('utf-8')
     delete_items(queue_codes, db_port)
 
-def run_consumer(db_port, non_carry_code_queue):
+def run_consumer(db_port, non_carry_code_queue, rabbitmq_username, rabbitmq_password):
     if not db_port:
         logging.error("Environment variable 'DB_PORT' is not set.")
         sys.exit(1)
 
     try:
         # Establish connection
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -93,15 +91,23 @@ def graceful_shutdown(signal, frame):
     logging.info(f"Signal {signal} received. Shutting down.")
 
 def run():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/remover.env')
+    else:
+        load_dotenv('../environment/remover.env')
+
     db_port = os.getenv('DB_PORT')
     non_carry_code_queue = os.getenv('NON_CARRY_CODES_QUEUE_NAME')
+    rabbitmq_username = os.getenv('RABBITMQ_USERNAME')
+    rabbitmq_password = os.getenv('RABBITMQ_PASSWORD')
 
     # signal handlers
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(non_carry_code_queue, db_port)
+    run_consumer(non_carry_code_queue, db_port, rabbitmq_username, rabbitmq_password)
     logging.info("Consumer stopped.")
     # run
 

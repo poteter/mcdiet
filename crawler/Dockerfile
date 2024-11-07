@@ -61,11 +61,12 @@ RUN ln -s /app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-
 # Set the working directory
 WORKDIR /app
 
-# Copy the mcCrawler source code
-COPY src/mcCrawler /app
-
+COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Copy the mcCrawler source code
+COPY src/ /app
 
 # Ensure execution permissions for browsermob-proxy
 RUN chmod +x /app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy

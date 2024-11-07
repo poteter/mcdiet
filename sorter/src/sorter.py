@@ -13,8 +13,6 @@ from dotenv import load_dotenv
 from itertools import combinations
 import random
 
-load_dotenv('../environment/sorter.env')
-
 # global flag
 shutdown_flag = threading.Event()
 
@@ -165,14 +163,15 @@ def on_message(ch, method, properties, body, param, args):
     send_to_db(db_packet, api_url)
     # on_message
 
-def run_consumer(queue_name, api_url):
+def run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password):
     if not queue_name:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
 
     try:
         # Establish connection
-        connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -207,16 +206,26 @@ def run_consumer(queue_name, api_url):
     # run_consumer
 
 def run():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/sorter.env')
+    else:
+        load_dotenv('../environment/sorter.env')
+
     queue_name = os.getenv('CODE_KCAL_QUEUE')
+    logging.info(f'{queue_name}')
     db_port = os.getenv('DB_PORT')
+    logging.info(f'{db_port}')
     api_url = f"http://localhost:{db_port}/api/item"
+    rabbitmq_user = os.getenv('RABBITMQ_USER')
+    rabbitmq_password = os.getenv('RABBITMQ_PASS')
 
     # signal handlers
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(queue_name, api_url)
+    run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password)
     logging.info("Consumer stopped.")
     # run
 
