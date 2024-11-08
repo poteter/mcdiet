@@ -21,37 +21,50 @@ logging.basicConfig(
     ]
 )
 
-def get_codes_from_urls(urls):
+def get_codes_from_urls(url):
     codes = []
     pattern = r'(?:item=|-)(\d+)%'
 
-    for url in urls:
-        res = re.findall(pattern, url)
-        codes.extend(res)
-    int_codes = [eval(i) for i in codes]
-    return int_codes # get_codes_from_urls
+    res = re.findall(pattern, url)
+    codes.extend(res)
+
+    return codes # get_codes_from_urls
 
 def send_codes(codes, queue_name, ch):
     ch.queue_declare(queue=queue_name, durable=True)
+    logging.info(f"( send_codes ) queue_name: {queue_name}")
 
-    for code in codes:
-        str_code = str(code)
-        ch.basic_publish(exchange='', routing_key=queue_name, body=str_code)
+    str_codes = str(codes)
+    logging.info(f"( send_codes ) str_code: {str_codes}")
+
+    ch.basic_publish(exchange='', routing_key=queue_name, body=str_codes)
     # send_codes
 
 def add_meta_code(code_list):
     formatted_list = ["mcd-" + code for code in code_list]
     return formatted_list
 
-def on_message(ch, method, properties, body, param, args):
-    url_queue_name, code_queue_name = args
+def create_on_message_callback(url_queue_name, code_queue_name):
+    logging.info(f"( create_on_message_callback ) create_on_message_callback")
+    def on_message_callback(ch, method, properties, body):
+        logging.info(f"( on_message_callback ) on_message_callback")
+        on_message(ch, method, properties, body, url_queue_name, code_queue_name)
+    return on_message_callback
 
+def on_message(ch, method, properties, body, url_queue_name, code_queue_name):
+    logging.info(f"( on_message ) on_message")
     urls = body.decode('utf-8')
+    logging.info(f"( on_message ) urls: {urls}")
+
     codes = get_codes_from_urls(urls)
+    logging.info(f"( on_message ) codes: {codes}")
+
     formatted_codes = add_meta_code(codes)
+    logging.info(f"( on_message ) formatted_codes: {formatted_codes}")
+
     send_codes(formatted_codes, code_queue_name, ch)
 
-def run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_password):
+def run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_password, rabbitmq_host):
     if not code_queue_name or not url_queue_name:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
@@ -59,22 +72,20 @@ def run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_passwo
     try:
         # Establish connection
         credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host, credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
-        channel.queue_declare(queue=code_queue_name, durable=True)
+        channel.queue_declare(queue=url_queue_name, durable=True)
 
         # Define the callback with additional arguments
         channel.basic_consume(
-            queue=code_queue_name,
-            on_message_callback=lambda ch, method, properties, body, param, args: on_message(
-                ch, method, properties, body, args, (url_queue_name, code_queue_name)
-            ),
+            queue=url_queue_name,
+            on_message_callback=create_on_message_callback(url_queue_name, code_queue_name),
             auto_ack=True
         )
 
-        logging.info(f"waiting for message from {code_queue_name}")
+        logging.info(f"waiting for message from {url_queue_name}")
 
         # Start consuming in a separate thread to allow graceful shutdown
         consume_thread = threading.Thread(target=channel.start_consuming)
@@ -105,9 +116,12 @@ def run():
     url_queue_name = os.getenv("URL_QUEUE_NAME")
     rabbitmq_user = os.getenv("RABBITMQ_USERNAME")
     rabbitmq_password = os.getenv("RABBITMQ_PASSWORD")
+    rabbitmq_host = os.getenv("RABBITMQ_HOST")
+
+    logging.info(f"code_queue_name: {code_queue_name}, url_queue_name: {url_queue_name}, rabbitmq_user: {rabbitmq_user}, rabbitmq_password: {rabbitmq_password}")
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_password)
+    run_consumer(code_queue_name, url_queue_name, rabbitmq_user, rabbitmq_password, rabbitmq_host)
     logging.info("Consumer stopped.")
 
 if __name__ == '__main__':

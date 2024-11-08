@@ -67,6 +67,7 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy the mcCrawler source code
 COPY src/ /app
+COPY environment/ ./environment/
 
 # Ensure execution permissions for browsermob-proxy
 RUN chmod +x /app/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/bin/browsermob-proxy

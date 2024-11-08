@@ -8,8 +8,7 @@ import pika
 from pika import exceptions
 from dotenv import load_dotenv
 import logging
-
-load_dotenv('../environment/BKstripper.env')
+import time
 
 # Global flag for graceful shutdown
 shutdown_flag = threading.Event()
@@ -42,6 +41,7 @@ def get_codes(data_obj_json):
 
 def get_json_from_url(url):
     response = urlopen(url)
+    logging.info(f"( get_json_from_url ) - urlopen({url}) response:{response}")
     return json.loads(response.read()) # get_json_from_url
 
 def add_meta_code(code_list):
@@ -49,31 +49,44 @@ def add_meta_code(code_list):
     return formatted_list
 
 def send_codes(rabbit_host, rabbit_port, rabbit_username, rabbit_password, codes, queue_name):
+    logging.info("( send_codes ) credentials")
     credentials = pika.PlainCredentials(rabbit_username, rabbit_password)
+
+    logging.info("( send_codes ) parameters")
     parameters = pika.ConnectionParameters(
         host=rabbit_host,
         port=rabbit_port,
         credentials=credentials
     )
 
+    logging.info("( send_codes ) connection")
     connection = pika.BlockingConnection(parameters)
+
+    logging.info("( send_codes ) channel = connection.channel()")
     channel = connection.channel()
+
+    logging.info(f"( send_codes ) queue_declare queue : {queue_name}")
     channel.queue_declare(queue=queue_name, durable=True)
 
-    for code in codes:
-        str_code = str(code)
-        channel.basic_publish(exchange='', routing_key=queue_name, body=str_code)
+    logging.info("( send_codes ) send codes")
+    str_codes = str(codes)
+    logging.info(f"( send_codes ) - code: {str_codes} ")
+    channel.basic_publish(exchange='', routing_key=queue_name, body=str_codes)
 
+    logging.info("( send_codes ) close connection")
     connection.close() # send_codes
 
 def run_code_stripper(RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, bk_url):
     try:
+        logging.info(f"( run_code_stripper ) - host: {RABBITMQ_HOST}, port: {RABBITMQ_PORT}, username: {RABBITMQ_USERNAME}, password: {RABBITMQ_PASSWORD}")
         code_queue_name = os.getenv('CODE_QUEUE_NAME')
-
-        logging.info("Starting the run process...")
+        logging.info(f"( run_code_stripper ) - code_queue_name: {code_queue_name}")
+        logging.info("( run_code_stripper ) - Starting the run process...")
         data_json = get_json_from_url(bk_url)
         codes = get_codes(data_json)
+        logging.info(f"( run_code_stripper ) - get_codes({codes}) ")
         formatted_codes = add_meta_code(codes)
+        logging.info(f"( run_code_stripper ) - formatted_codes: {formatted_codes} ")
         send_codes(RABBITMQ_HOST, RABBITMQ_PORT, RABBITMQ_USERNAME, RABBITMQ_PASSWORD, formatted_codes, code_queue_name)
         logging.info("Run process completed successfully.")
 
@@ -151,6 +164,7 @@ class ThreadConsumeRabbit(threading.Thread):
                 logging.info("RabbitMQ connection closed.")
 
     def on_message(self, ch, method, properties, body):
+        code_queue = os.getenv('CODE_QUEUE_NAME')
         message = body.decode()
         logging.info(f"Received message: {message}")
         if message.strip().lower() == "run":
@@ -168,12 +182,18 @@ def graceful_shutdown(signum, frame):
     shutdown_flag.set()
 
 def main():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/BKstripper.env')
+    else:
+        load_dotenv('../environment/BKstripper.env')
+
     # RabbitMQ Configuration for Consumer
     exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'runTriggerFanoutExchange')
     exchange_type = 'fanout'
 
     # RabbitMQ Configuration for Publisher
-    code_queue_name = os.getenv('CODE_QUEUE_NAME', 'code_queue')
+    code_queue_name = os.getenv('CODE_QUEUE_NAME', 'productCodes')
 
     # RabbitMQ general configuration
     rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
@@ -206,7 +226,7 @@ def main():
     # Wait for shutdown flag
     try:
         while not shutdown_flag.is_set():
-            shutdown_flag.wait(timeout=1)
+            shutdown_flag.wait(timeout=.1)
     except KeyboardInterrupt:
         logging.info("KeyboardInterrupt received.")
     finally:

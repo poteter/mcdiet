@@ -25,12 +25,6 @@ local_mode = False
 # Global flag for graceful shutdown
 shutdown_flag = threading.Event()
 
-# Load environment variables
-if local_mode:
-    load_dotenv('../environment/crawl.env')
-else:
-    load_dotenv('/app/environment/crawl.env')
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -87,8 +81,6 @@ driver = webdriver.Chrome(service=service, options=chrome_options)
 
 # Set to True to enable console debug messages
 console_debug_on = False
-
-mcdonalds_url = os.getenv('MCDONALDS_URL')
 
 def capture_request_urls(start_url, input_url_list, max_retries=3):
     proxy.new_har("capture_requests", options={'captureHeaders': True})
@@ -211,14 +203,15 @@ def send_to_rabbit(url_list, rabbitmq_host, rabbitmq_port, rabbitmq_username, ra
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         channel.queue_declare(queue=url_queue, durable=True)
-        message = json.dumps(url_list)
-        channel.basic_publish(
-            exchange='',
-            routing_key=url_queue,
-            body=message,
-            properties=pika.BasicProperties(
-                delivery_mode=2,
-            ))
+        for url in url_list:
+            message = json.dumps(url)
+            channel.basic_publish(
+                exchange='',
+                routing_key=url_queue,
+                body=message,
+                properties=pika.BasicProperties(
+                    delivery_mode=2,
+                ))
 
         logging.info(f"Sent {len(url_list)} URLs to queue '{url_queue}'")
 
@@ -231,6 +224,7 @@ def send_to_rabbit(url_list, rabbitmq_host, rabbitmq_port, rabbitmq_username, ra
 def run_crawl_sequence(mc_url, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue):
     url_list = []
     url_list = capture_request_urls(mc_url, url_list)
+    logging.info(f"url_list: {url_list}")
     send_to_rabbit(url_list, rabbitmq_host, rabbitmq_port, rabbitmq_username, rabbitmq_password, url_queue)
 
 class ThreadConsumeRabbit(threading.Thread):
@@ -321,12 +315,18 @@ def graceful_shutdown(signum, frame):
     shutdown_flag.set()
 
 def main():
+    path_flag_docker = True
+    if path_flag_docker:
+        load_dotenv('/app/environment/crawl.env')
+    else:
+        load_dotenv('../environment/crawl.env')
+
     # RabbitMQ Configuration for Consumer
     exchange_name = os.getenv('FANOUT_EXCHANGE_NAME', 'runTriggerFanoutExchange')
     exchange_type = 'fanout'
 
     # RabbitMQ Configuration for Publisher
-    url_queue_name = os.getenv('URL_QUEUE_NAME', 'code_queue')
+    url_queue_name = os.getenv('URL_QUEUE_NAME', 'mcURL')
 
     # RabbitMQ general configuration
     rabbitmq_host = os.getenv('RABBITMQ_HOST', 'rabbitmq')
@@ -336,6 +336,7 @@ def main():
 
     # McDonald's product catalog URLs
     mc_url = os.getenv('MCDONALDS_URL')
+    logging.info(f"MCDONALDS_URL: {mc_url}")
 
     # Signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, graceful_shutdown)

@@ -70,6 +70,7 @@ services:
       - "8081:8081"
     networks:
       - mc_network
+      - outside_network
     depends_on:
       - consul
 
@@ -218,6 +219,10 @@ services:
 networks:
   mc_network:
     driver: bridge
+    internal: false
+  outside_network:
+    driver: bridge
+
 volumes:
   consul-data:
     driver: local
