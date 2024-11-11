@@ -22,22 +22,31 @@ logging.basicConfig(
     ]
 )
 
-def delete_items(code, db_port, api_url):
+def delete_items(codes, db_port, api_url):
     if not db_port:
         logging.error("db_port is empty")
 
-    api_url = f'{api_url}{code}'
-    try:
-        response = requests.delete(api_url)
-        response.raise_for_status()
-        print(f"Successfully deleted code: {code}")
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred while deleting code {code}: {e}")
+    for code in codes:
+        trimmed_code = code.replace("]", '')
+        trimmed_code = trimmed_code.replace("[", '')
+        trimmed_code = trimmed_code.replace("'", '')
+        trimmed_code = trimmed_code.replace("/", '')
+        trimmed_code = trimmed_code.replace("\\", '')
+        trimmed_code = trimmed_code.replace('"', '')
+        trimmed_code = trimmed_code.replace(" ", '')
+        api_url = f'{api_url}{trimmed_code}'
+        try:
+            response = requests.delete(api_url)
+            response.raise_for_status()
+            print(f"Successfully deleted code: {trimmed_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred while deleting code {trimmed_code}: {e}")
     # delete_items
 
 def on_message(ch, method, props, body, db_port, api_url):
     queue_code = body.decode('utf-8')
-    delete_items(queue_code, db_port, api_url)
+    string_to_list = queue_code.split(',')
+    delete_items(string_to_list, db_port, api_url)
 
 def create_on_message_callback(db_port, api_url):
     logging.info(f"( create_on_message_callback ) create_on_message_callback")
