@@ -59,7 +59,7 @@ public class ItemController {
     /* DELETE mappings */
 
     @DeleteMapping("/codes/{code}")
-    public void deleteItem(@PathVariable Long code) {
+    public void deleteItem(@PathVariable String code) {
         itemService.deleteItemByCode(code);
     }
 }

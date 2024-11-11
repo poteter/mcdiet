@@ -25,8 +25,8 @@ public class ItemService {
         return itemRepo.getItemIdFoodTypeAndEnergyKcal();
     }
 
-    public void deleteItemByCode(Long code) {
-        itemRepo.deleteById(code);
+    public void deleteItemByCode(String code) {
+        itemRepo.deleteByItemId(code);
     }
 
     public List<Long> getItemCodes(){
