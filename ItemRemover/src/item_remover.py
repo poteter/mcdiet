@@ -34,6 +34,8 @@ def delete_items(codes, db_port, api_url):
         trimmed_code = trimmed_code.replace("\\", '')
         trimmed_code = trimmed_code.replace('"', '')
         trimmed_code = trimmed_code.replace(" ", '')
+        trimmed_code = trimmed_code.replace("mcd-", '')
+        trimmed_code = trimmed_code.replace("bgk-", '')
         api_url = f'{api_url}{trimmed_code}'
         try:
             response = requests.delete(api_url)

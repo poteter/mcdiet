@@ -1,0 +1,2 @@
+2024-11-11 11:53:00,800 - INFO - Starting RabbitMQ consumer.
+2024-11-11 11:53:00,802 - ERROR - Environment variable 'DB_PORT' is not set.
