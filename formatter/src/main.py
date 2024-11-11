@@ -36,6 +36,7 @@ def sort_codes(codes, meta_code):
             trimmed_code = code.replace(meta_code, '')
             trimmed_code = trimmed_code.replace("]", '')
             trimmed_code = trimmed_code.replace("[", '')
+            trimmed_code = trimmed_code.replace("'", '')
             trimmed_code = trimmed_code.replace("/", '')
             trimmed_code = trimmed_code.replace("\\", '')
             logging.info(f"( trimmed_code {trimmed_code})")
@@ -57,10 +58,14 @@ def on_message(channel, method, properties, body):
 
     # calls the formatter modules
     logging.info(f"( run_consumer ) bk_formatter 'bkg-'")
-    bk_formatter.run(sort_codes(string_to_list, "bgk-"))
+    bk_codes = sort_codes(string_to_list, "bgk-")
+    if bk_codes is not None:
+        bk_formatter.run(bk_codes)
 
-    #logging.info(f"( run_consumer ) mcd_formatter 'mcd-'")
-    #mcd_formatter.run(sort_codes(queue_code, "mcd-"))
+    logging.info(f"( run_consumer ) mcd_formatter 'mcd-'")
+    mcd_codes = sort_codes(string_to_list, "mcd-")
+    if mcd_codes is not None:
+        mcd_formatter.run(mcd_codes)
     # on_message
 
 def run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password, rabbitmq_host):

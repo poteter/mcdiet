@@ -87,10 +87,20 @@ def send_data(data, api_url):
 
     # send_data
 
-def make_urls_from_codes(code, mc_url):
-    url = f"{mc_url}{code}"
-    logging.info(f"( mcd_formatter.make_urls_from_codes ) url: {url}")
-    return url # make_urls_from_codes
+def make_urls_from_codes(codes, mc_url):
+    urls = []
+
+    for code in codes:
+        trimmed_code = code.replace("]", '')
+        trimmed_code = trimmed_code.replace("[", '')
+        trimmed_code = trimmed_code.replace("/", '')
+        trimmed_code = trimmed_code.replace("\\", '')
+        trimmed_code = trimmed_code.replace('"', '')
+        trimmed_code = trimmed_code.replace(' ', '')
+        urls.append(f"{mc_url}{trimmed_code}")
+
+    logging.info(f"( mcd_formatter.make_urls_from_codes ) url: {urls}")
+    return urls # make_urls_from_codes
 
 def get_json_from_url(url):
     try:
@@ -99,12 +109,13 @@ def get_json_from_url(url):
     except logging.error as e:
         logging.error(f"( mcd_formatter.get_json_from_url ) error: {e}")
 
-def send_to_db(url, api_url):
-    url_json_object = get_json_from_url(url)
-    send_data(url_json_object, api_url)
+def send_to_db(urls, api_url):
+    for url in urls:
+        url_json_object = get_json_from_url(url)
+        send_data(url_json_object, api_url)
 
 
-def run(code):
+def run(codes):
     path_flag_docker = True
     if path_flag_docker:
         load_dotenv('/app/environment/formatter.env')
@@ -121,14 +132,14 @@ def run(code):
     else:
         gateway_host_name = 'localhost'
 
-    logging.info(f"(mcd_formatter.run ) codes: {type(code)} {code}")
+    logging.info(f"(mcd_formatter.run ) codes: {type(codes)}")
 
     db_port = os.getenv('DB_PORT')
     api_url = f'http://{gateway_host_name}:{db_port}/{db_host_name}/api/item'
 
     mcd_url = os.getenv('MCD_URL')
 
-    url = make_urls_from_codes(code, mcd_url)
-    send_to_db(url, api_url)
+    urls = make_urls_from_codes(codes, mcd_url)
+    send_to_db(urls, api_url)
 
     # run
