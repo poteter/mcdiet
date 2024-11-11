@@ -5,14 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/src/bk_code_stripper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/src/bk_code_stripper.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../dupe_checker/src/DupeCheck.py" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/src/DupeCheck.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../formatter/environment/formatter.env" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/environment/formatter.env" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../formatter/src/bk_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/bk_formatter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../formatter/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../formatter/src/mcd_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/mcd_formatter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/Item.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/ItemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/ItemController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +114,7 @@
       <workItem from="1730979586817" duration="691000" />
       <workItem from="1731070461178" duration="1392000" />
       <workItem from="1731178801525" duration="1263000" />
-      <workItem from="1731240469561" duration="6077000" />
+      <workItem from="1731240469561" duration="6687000" />
     </task>
     <servers />
   </component>

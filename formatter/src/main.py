@@ -26,12 +26,23 @@ logging.basicConfig(
 # strips meta code from queue code
 # mcd-500232 -> 500232
 # bgk-4835-fsd4123-324f -> 4835-fsd4123-324f
-def sort_codes(code, meta_code):
+def sort_codes(codes, meta_code):
     logging.info(f"( sort_codes {meta_code})")
-    trimmed_code = code.replace(meta_code, '')
-    trimmed_code = trimmed_code.replace("'", '')
-    logging.info(f"( sort_codes ) result_list: {trimmed_code}")
-    return trimmed_code
+    trimmed_codes = []
+
+    for code in codes:
+        logging.info(f"( sort_codes {code})")
+        if meta_code in code:
+            trimmed_code = code.replace(meta_code, '')
+            trimmed_code = trimmed_code.replace("]", '')
+            trimmed_code = trimmed_code.replace("[", '')
+            trimmed_code = trimmed_code.replace("/", '')
+            trimmed_code = trimmed_code.replace("\\", '')
+            logging.info(f"( trimmed_code {trimmed_code})")
+            trimmed_codes.append(trimmed_code)
+
+    logging.info(f"( sort_codes ) result_list: {trimmed_codes}")
+    return trimmed_codes
     # sort_codes
 
 def graceful_shutdown(signal, frame):
@@ -40,15 +51,16 @@ def graceful_shutdown(signal, frame):
 
 def on_message(channel, method, properties, body):
     # sorts codes by meta code
-    queue_code = body.decode('utf-8')
-    logging.info(f"( on_message ) queue_codes: {type(queue_code)} {queue_code}")
+    bytes_to_string = body.decode()
+    string_to_list = bytes_to_string.split(",")
+    logging.info(f"( on_message ) queue_codes: {type(string_to_list)} {string_to_list}")
 
     # calls the formatter modules
-    #logging.info(f"( run_consumer ) bk_formatter 'bkg-'")
-    #bk_formatter.run(sort_codes(queue_code, "bgk-"))
+    logging.info(f"( run_consumer ) bk_formatter 'bkg-'")
+    bk_formatter.run(sort_codes(string_to_list, "bgk-"))
 
-    logging.info(f"( run_consumer ) mcd_formatter 'mcd-'")
-    mcd_formatter.run(sort_codes(queue_code, "mcd-"))
+    #logging.info(f"( run_consumer ) mcd_formatter 'mcd-'")
+    #mcd_formatter.run(sort_codes(queue_code, "mcd-"))
     # on_message
 
 def run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password, rabbitmq_host):

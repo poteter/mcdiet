@@ -164,7 +164,6 @@ class ThreadConsumeRabbit(threading.Thread):
                 logging.info("RabbitMQ connection closed.")
 
     def on_message(self, ch, method, properties, body):
-        code_queue = os.getenv('CODE_QUEUE_NAME')
         message = body.decode()
         logging.info(f"Received message: {message}")
         if message.strip().lower() == "run":

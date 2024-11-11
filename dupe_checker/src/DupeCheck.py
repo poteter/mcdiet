@@ -51,17 +51,20 @@ def get_non_carry_item_codes(queue_codes, db_codes):
 
 def send_codes(codes, queue_name, channel):
     logging.info(f"( send_codes ) Sending {len(codes)} codes to {queue_name} on channel {channel}")
+    stripped_codes = []
     for code in codes:
-        str_code = str(code)
-        if "[" in str_code:
-            str_code = str_code.translate({ord('['):None})
-        if "]" in str_code:
-            str_code = str_code.translate({ord(']'):None})
-        if "]" in str_code:
-            str_code = str_code.translate({ord("'"):None})
+        if "[" in code:
+            stripped_codes.append(code.translate({ord('['):None}))
+        if "]" in code:
+            stripped_codes.append(code.translate({ord(']'):None}))
+        if "]" in code:
+            stripped_codes.append(code.translate({ord("'"):None}))
+        else:
+            stripped_codes.append(code)
 
-        logging.info(f"( send_codes ) Sending {str_code}")
-        channel.basic_publish(exchange='', routing_key=queue_name, body=str_code)
+    str_stripped_codes = str(stripped_codes)
+    logging.info(f"( send_codes ) Sending {str_stripped_codes}")
+    channel.basic_publish(exchange='', routing_key=queue_name, body=str_stripped_codes)
 
 def create_on_message_callback(carry_code_queue, non_carry_code_queue, api_url):
     logging.info(f"( create_on_message_callback ) create_on_message_callback")

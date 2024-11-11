@@ -18,7 +18,7 @@ logging.basicConfig(
     ]
 )
 
-def find_menu_item_data(data_obj_json, code, api_url):
+def find_menu_item_data(data_obj_json, code):
     logging.info(f"( bk_formatter.find_menu_item_data )")
     menu_item_data = {
         "item_id": "",
@@ -58,24 +58,25 @@ def find_menu_item_data(data_obj_json, code, api_url):
                     else:
                         menu_item_data['food_type'] = "food"
                     logging.info(f"( bk_formatter.find_menu_item_data ) menu_item_data: {menu_item_data}")
-                    send_data(menu_item_data, api_url)
-                    break
+                    return menu_item_data
 
-def send_data(data, api_url):
-    if data:
-        logging.info(f"( bk_formatter.send_data ) data: {type(data)} {json.dumps(data, indent=4)}")
-        try:
-            response = requests.post(api_url, json=data)
+def send_data(items, api_url):
+    if items:
+        logging.info(f"( bk_formatter.send_data ) items: {type(items)}")
+        for item in items:
+            try:
+                response = requests.post(api_url, json=item)
 
-            if response.status_code == 200:
-                logging.info("( bk_formatter.send_data ) Successfully sent data to the API.")
-                logging.info(f"( bk_formatter.send_data ) Response: {json.dumps(response.json(), indent=4)}")
-            else:
-                logging.error(f"( bk_formatter.send_data ) Failed to send data. Status code: {response.status_code}")
-                logging.error(f"( bk_formatter.send_data ) Response: {json.dumps(response.json(), indent=4)}")
+                if response.status_code == 200:
+                    logging.info("( bk_formatter.send_data ) Successfully sent data to the API.")
+                    logging.info(f"( bk_formatter.send_data ) Response: {json.dumps(response.json(), indent=4)}")
+                else:
+                    logging.error(
+                        f"( bk_formatter.send_data ) Failed to send data. Status code: {response.status_code}")
+                    logging.error(f"( bk_formatter.send_data ) Response: {json.dumps(response.json(), indent=4)}")
 
-        except requests.exceptions.RequestException as e:
-            logging.error(f"( bk_formatter.send_data ) An error occurred: {e}")
+            except requests.exceptions.RequestException as e:
+                logging.error(f"( bk_formatter.send_data ) An error occurred: {e}")
     else:
         logging.error(f"( bk_formatter.send_data ) empty json")
     # send_data
@@ -91,7 +92,14 @@ def test():
     else:
         logging.error(f"( bk_formatter.test ) response status code: {response.status_code}")
 
-def run(code):
+def run_sequence(bk_items, codes, api_url):
+    items = []
+    for code in codes:
+        items.append(find_menu_item_data(bk_items, code))
+
+    send_data(items, api_url)
+
+def run(codes):
     path_flag_docker = True
     if path_flag_docker:
         load_dotenv('/app/environment/formatter.env')
@@ -108,7 +116,7 @@ def run(code):
     else:
         gateway_host_name = 'localhost'
 
-    logging.info(f"( bk_formatter.run ) codes: {type(code)} {code}")
+    logging.info(f"( bk_formatter.run ) codes: {type(codes)} {codes}")
 
     db_port = os.getenv('DB_PORT')
     api_url = f'http://{gateway_host_name}:{db_port}/{db_host_name}/api/item'
@@ -120,4 +128,4 @@ def run(code):
     logging.info(f"( bk_formatter.run ) bk_url: {bk_url}")
     bk_items = get_json_from_url(bk_url)
     #logging.info(f"( run ) bk_items: {json.dumps(bk_items, indent=4)}")
-    find_menu_item_data(bk_items, code, api_url)
+    run_sequence(bk_items, codes, api_url)
