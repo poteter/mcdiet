@@ -19,6 +19,11 @@ public class ItemController {
 
     /* GET mappings */
 
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+
     @GetMapping("/{id}")
     public Item getItem(@PathVariable Long id) {
         return itemService.getItemById(id);

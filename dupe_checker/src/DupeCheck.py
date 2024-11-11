@@ -53,6 +53,13 @@ def send_codes(codes, queue_name, channel):
     logging.info(f"( send_codes ) Sending {len(codes)} codes to {queue_name} on channel {channel}")
     for code in codes:
         str_code = str(code)
+        if "[" in str_code:
+            str_code = str_code.translate({ord('['):None})
+        if "]" in str_code:
+            str_code = str_code.translate({ord(']'):None})
+        if "]" in str_code:
+            str_code = str_code.translate({ord("'"):None})
+
         logging.info(f"( send_codes ) Sending {str_code}")
         channel.basic_publish(exchange='', routing_key=queue_name, body=str_code)
 

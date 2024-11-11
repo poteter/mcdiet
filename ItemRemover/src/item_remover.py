@@ -22,28 +22,31 @@ logging.basicConfig(
     ]
 )
 
-def delete_items(codes, db_port):
+def delete_items(code, db_port, api_url):
     if not db_port:
         logging.error("db_port is empty")
 
-    for code in codes:
-        api_url = f'http://localhost:{db_port}/api/item/codes/{code}'
-        try:
-            response = requests.delete(api_url)
-            response.raise_for_status()
-            print(f"Successfully deleted code: {code}")
-        except requests.exceptions.RequestException as e:
-            print(f"An error occurred while deleting code {code}: {e}")
-
+    api_url = f'{api_url}{code}'
+    try:
+        response = requests.delete(api_url)
+        response.raise_for_status()
+        print(f"Successfully deleted code: {code}")
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while deleting code {code}: {e}")
     # delete_items
 
-def on_message(ch, method, props, body, param, args):
-    non_carry_code_queue, db_port = args
+def on_message(ch, method, props, body, db_port, api_url):
+    queue_code = body.decode('utf-8')
+    delete_items(queue_code, db_port, api_url)
 
-    queue_codes = body.decode('utf-8')
-    delete_items(queue_codes, db_port)
+def create_on_message_callback(db_port, api_url):
+    logging.info(f"( create_on_message_callback ) create_on_message_callback")
+    def on_message_callback(ch, method, properties, body):
+        logging.info(f"( on_message_callback ) on_message_callback")
+        on_message(ch, method, properties, body, db_port, api_url)
+    return on_message_callback
 
-def run_consumer(db_port, non_carry_code_queue, rabbitmq_username, rabbitmq_password):
+def run_consumer(db_port, non_carry_code_queue, rabbitmq_username, rabbitmq_password, rabbitmq_host, api_url):
     if not db_port:
         logging.error("Environment variable 'DB_PORT' is not set.")
         sys.exit(1)
@@ -51,7 +54,7 @@ def run_consumer(db_port, non_carry_code_queue, rabbitmq_username, rabbitmq_pass
     try:
         # Establish connection
         credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host, credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -60,9 +63,7 @@ def run_consumer(db_port, non_carry_code_queue, rabbitmq_username, rabbitmq_pass
         # Define the callback with additional arguments
         channel.basic_consume(
             queue=non_carry_code_queue,
-            on_message_callback=lambda ch, method, properties, body, param, args: on_message(
-                ch, method, properties, body, args, (non_carry_code_queue, db_port)
-            ),
+            on_message_callback=create_on_message_callback(db_port, api_url),
             auto_ack=True
         )
 
@@ -97,17 +98,30 @@ def run():
     else:
         load_dotenv('../environment/remover.env')
 
+    if path_flag_docker:
+        db_host_name = 'item_db'
+    else:
+        db_host_name = 'localhost'
+
+    if path_flag_docker:
+        gateway_host_name = 'gateway'
+    else:
+        gateway_host_name = 'localhost'
+
     db_port = os.getenv('DB_PORT')
+    api_url = f'http://{gateway_host_name}:{db_port}/{db_host_name}/api/item/codes/'
+
     non_carry_code_queue = os.getenv('NON_CARRY_CODES_QUEUE_NAME')
     rabbitmq_username = os.getenv('RABBITMQ_USERNAME')
     rabbitmq_password = os.getenv('RABBITMQ_PASSWORD')
+    rabbitmq_host = os.getenv('RABBITMQ_HOST')
 
     # signal handlers
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(non_carry_code_queue, db_port, rabbitmq_username, rabbitmq_password)
+    run_consumer(non_carry_code_queue, db_port, rabbitmq_username, rabbitmq_password, rabbitmq_host, api_url)
     logging.info("Consumer stopped.")
     # run
 

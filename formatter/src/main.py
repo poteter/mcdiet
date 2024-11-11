@@ -2,6 +2,8 @@ import logging
 import signal
 import sys
 import threading
+import time
+
 from pika import exceptions
 import pika
 import os
@@ -21,41 +23,44 @@ logging.basicConfig(
     ]
 )
 
-# sort list of codes from the queue into sub-lists of codes by their meta code
-# and strips meta code from queue code
+# strips meta code from queue code
 # mcd-500232 -> 500232
 # bgk-4835-fsd4123-324f -> 4835-fsd4123-324f
-def sort_codes(code_list, meta_code):
-    result_list = []
-    for code in code_list:
-        if meta_code in code:
-            result_list.append(code.replace(meta_code, ''))
-    return result_list
+def sort_codes(code, meta_code):
+    logging.info(f"( sort_codes {meta_code})")
+    trimmed_code = code.replace(meta_code, '')
+    trimmed_code = trimmed_code.replace("'", '')
+    logging.info(f"( sort_codes ) result_list: {trimmed_code}")
+    return trimmed_code
     # sort_codes
 
 def graceful_shutdown(signal, frame):
     shutdown_flag.set()
     logging.info(f"Signal {signal} received. Shutting down.")
 
-def on_message(channel, method, properties, body, param):
-
+def on_message(channel, method, properties, body):
     # sorts codes by meta code
-    queue_codes = body.decode('utf-8')
+    queue_code = body.decode('utf-8')
+    logging.info(f"( on_message ) queue_codes: {type(queue_code)} {queue_code}")
 
     # calls the formatter modules
-    bk_formatter.run(sort_codes(queue_codes, "bgk-"))
-    mcd_formatter.run(sort_codes(queue_codes, "mcd-"))
+    #logging.info(f"( run_consumer ) bk_formatter 'bkg-'")
+    #bk_formatter.run(sort_codes(queue_code, "bgk-"))
+
+    logging.info(f"( run_consumer ) mcd_formatter 'mcd-'")
+    mcd_formatter.run(sort_codes(queue_code, "mcd-"))
     # on_message
 
-def run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password):
+def run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password, rabbitmq_host):
     if not carry_code_queue:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
 
     try:
+        logging.info(f"( run_consumer )")
         # Establish connection
         credentials = pika.PlainCredentials(rabbitmq_username, rabbitmq_password)
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host, credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -64,8 +69,8 @@ def run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password):
         # Define the callback with additional arguments
         channel.basic_consume(
             queue=carry_code_queue,
-            on_message_callback=lambda ch, method, properties, body, param: on_message(
-                ch, method, properties, body, param
+            on_message_callback=lambda ch, method, properties, body: on_message(
+                ch, method, properties, body
             ),
             auto_ack=True
         )
@@ -75,6 +80,14 @@ def run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password):
         # Start consuming in a separate thread to allow graceful shutdown
         consume_thread = threading.Thread(target=channel.start_consuming)
         consume_thread.start()
+
+        while not shutdown_flag.is_set():
+            time.sleep(1)
+
+        channel.stop_consuming()
+        consume_thread.join()
+        connection.close()
+        logging.info("RabbitMQ consumer has been shut down gracefully.")
 
     except pika.exceptions.AMQPConnectionError as e:
         logging.error(f"AMQP connection error: {e}")
@@ -92,14 +105,15 @@ def run():
     carry_code_queue = os.getenv('CODE_QUEUE_NAME')
     rabbitmq_username = os.getenv('RABBITMQ_USERNAME')
     rabbitmq_password = os.getenv('RABBITMQ_PASSWORD')
+    rabbitmq_host = os.getenv('RABBITMQ_HOST')
 
     # signal handlers
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
-    logging.info("Starting RabbitMQ consumer.")
-    run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password)
-    logging.info("Consumer stopped.")
+    logging.info("( run ) Starting RabbitMQ consumer.")
+    run_consumer(carry_code_queue, rabbitmq_username, rabbitmq_password, rabbitmq_host)
+    logging.info("( run ) Consumer stopped.")
 
 if __name__ == '__main__':
     run()

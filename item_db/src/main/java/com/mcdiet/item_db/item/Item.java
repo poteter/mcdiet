@@ -14,7 +14,7 @@ public class Item {
 
     @Id
     @Column(name = "itemId")
-    private Long item_id = 0L;
+    private String item_id = "";
 
     @Column(name = "itemName")
     private String item_name;
@@ -25,7 +25,7 @@ public class Item {
     @Column(name = "foodType")
     private String food_type;
 
-    public Item(String itemName, int kcal, Long item_id, String food_type) {
+    public Item(String itemName, int kcal, String item_id, String food_type) {
         this.food_type = food_type;
         this.item_name = itemName;
         this.energy_Kcal = kcal;

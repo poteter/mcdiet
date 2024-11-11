@@ -5,16 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/environment/BKstripper.env" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/environment/BKstripper.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../BKCodeStripper/src/bk_code_stripper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../BKCodeStripper/src/bk_code_stripper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MCCodeStripper/environment/MCStripper.env" beforeDir="false" afterPath="$PROJECT_DIR$/../MCCodeStripper/environment/MCStripper.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MCCodeStripper/src/mc_code_stripper.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MCCodeStripper/src/mc_code_stripper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawl_controller/src/main/java/com/boiler/crawl_controller/control/CrawlService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../crawl_controller/src/main/java/com/boiler/crawl_controller/control/CrawlService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/environment/crawl.env" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/environment/crawl.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../crawler/src/urlCrawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/../crawler/src/urlCrawler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dupe_checker/src/DupeCheck.py" beforeDir="false" afterPath="$PROJECT_DIR$/../dupe_checker/src/DupeCheck.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/environment/formatter.env" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/environment/formatter.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/src/bk_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/bk_formatter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../formatter/src/mcd_formatter.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/mcd_formatter.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/Item.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/ItemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/mcdiet/item_db/item/ItemController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,26 +46,26 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;Spring Boot.ItemDbApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/skole/semester5/microservices/mcdiet/item_db&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "Spring Boot.ItemDbApplication.executor": "Run",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/item_db",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.sourceCode",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\skole\semester5\microservices\mcdiet\item_db\src\main\resources\templates" />
@@ -118,7 +116,9 @@
       <workItem from="1730970571036" duration="225000" />
       <workItem from="1730976192149" duration="1061000" />
       <workItem from="1730979586817" duration="691000" />
-      <workItem from="1731070461178" duration="741000" />
+      <workItem from="1731070461178" duration="1392000" />
+      <workItem from="1731178801525" duration="1263000" />
+      <workItem from="1731240469561" duration="6077000" />
     </task>
     <servers />
   </component>
