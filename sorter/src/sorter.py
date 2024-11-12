@@ -143,8 +143,7 @@ def graceful_shutdown(signal, frame):
     shutdown_flag.set()
     logging.info(f"Signal {signal} received. Shutting down.")
 
-def on_message(ch, method, properties, body, param, args):
-    api_url = args
+def on_message(ch, method, properties, body, api_url):
     items = body.decode('utf-8')
 
     calories = items.get('calories')
@@ -163,7 +162,14 @@ def on_message(ch, method, properties, body, param, args):
     send_to_db(db_packet, api_url)
     # on_message
 
-def run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password):
+def create_on_message_callback(api_url):
+    logging.info(f"( create_on_message_callback ) create_on_message_callback")
+    def on_message_callback(ch, method, properties, body):
+        logging.info(f"( on_message_callback ) on_message_callback")
+        on_message(ch, method, properties, body, api_url)
+    return on_message_callback
+
+def run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password, rabbitmq_host):
     if not queue_name:
         logging.error("One or more required environment variables are missing. Exiting.")
         sys.exit(1)
@@ -171,7 +177,7 @@ def run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password):
     try:
         # Establish connection
         credentials = pika.PlainCredentials(rabbitmq_user, rabbitmq_password)
-        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq', credentials=credentials))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(rabbitmq_host, credentials=credentials))
         channel = connection.channel()
 
         # Declare the parameter queue
@@ -180,9 +186,7 @@ def run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password):
         # Define the callback with additional arguments
         channel.basic_consume(
             queue=queue_name,
-            on_message_callback=lambda ch, method, properties, body, param, args: on_message(
-                ch, method, properties, body, args, api_url
-            ),
+            on_message_callback=create_on_message_callback(api_url),
             auto_ack=True
         )
 
@@ -219,13 +223,14 @@ def run():
     api_url = f"http://localhost:{db_port}/api/item"
     rabbitmq_user = os.getenv('RABBITMQ_USER')
     rabbitmq_password = os.getenv('RABBITMQ_PASS')
+    rabbitmq_host = os.getenv('RABBITMQ_HOST')
 
     # signal handlers
     signal.signal(signal.SIGINT, graceful_shutdown)
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     logging.info("Starting RabbitMQ consumer.")
-    run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password)
+    run_consumer(queue_name, api_url, rabbitmq_user, rabbitmq_password, rabbitmq_host)
     logging.info("Consumer stopped.")
     # run
 
