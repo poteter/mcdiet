@@ -216,11 +216,16 @@ def run():
     else:
         load_dotenv('../environment/sorter.env')
 
+    if path_flag_docker:
+        menu_db_host_name = "menu_db"
+    else:
+        menu_db_host_name = "localhost"
+
     queue_name = os.getenv('CODE_KCAL_QUEUE')
     logging.info(f'{queue_name}')
     db_port = os.getenv('DB_PORT')
     logging.info(f'{db_port}')
-    api_url = f"http://localhost:{db_port}/api/item"
+    api_url = f"http://{menu_db_host_name}:{db_port}/api/item"
     rabbitmq_user = os.getenv('RABBITMQ_USER')
     rabbitmq_password = os.getenv('RABBITMQ_PASS')
     rabbitmq_host = os.getenv('RABBITMQ_HOST')
