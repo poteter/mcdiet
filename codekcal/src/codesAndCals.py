@@ -27,6 +27,9 @@ logging.basicConfig(
 def convert_list_to_dict(lst):
     try:
         res_dict = {item['itemId']: {'energyKcal': item['energyKcal'], 'foodType': item['foodType']} for item in lst}
+        logging.info(f"Converted {type(lst)} items to dict")
+        logging.info(f"res_dict {type(res_dict)}")
+
         return res_dict
     except Exception as e:
         logging.error(f"( convert_list_to_dict ) Error when trying to convert list to dict : {e}")
@@ -52,6 +55,7 @@ def get_codes_foodtype_and_calories_from_db(uri):
 def send_packet_to_queue(channel, codeKcal_queue_name, packet):
     try:
         message = json.dumps(packet)
+        logging.info(f"( send_packet_to_queue ) message: {message} ) ")
         channel.basic_publish(
             exchange='',
             routing_key=codeKcal_queue_name,
@@ -60,7 +64,7 @@ def send_packet_to_queue(channel, codeKcal_queue_name, packet):
                 delivery_mode=2,
             )
         )
-        logging.info(f"( send_packet_to_queue ) Sent {message} to {codeKcal_queue_name}")
+        logging.info(f"( send_packet_to_queue ) Sent message to {codeKcal_queue_name}")
     except Exception as e:
         logging.error(f"( send_packet_to_queue ) Error sending packet: {e}")
 
@@ -72,7 +76,10 @@ def graceful_shutdown(signal, frame):
 def process_message(body, codekcal_queue_name, gw_port, item_db_uri):
     try:
         params = json.loads(body.decode('utf-8'))
-        logging.info(f"( process_message ) Processing parameters: {params}")
+        logging.info(f"( process_message ) Processing parameters:{type(params)} {params}")
+        param_values = params.values()
+        for value in param_values:
+            logging.info(f"( process_message ) Processing value {type(value)} {value}")
 
         # Fetch data from the database
         codes_foodtype_and_calories = get_codes_foodtype_and_calories_from_db(item_db_uri)
@@ -87,6 +94,7 @@ def process_message(body, codekcal_queue_name, gw_port, item_db_uri):
         # Combine data into a single packet
         packet = {**code_cal_foodtype_dict, **params}
 
+
         # Note: The channel will be passed separately
         return packet
 
@@ -100,6 +108,18 @@ def on_message(channel, method, properties, body, param_queue_name, codekcal_que
     logging.info(f"( on_message ) Received message from queue '{param_queue_name}'")
 
     packet = process_message(body, codekcal_queue_name, gw_port, item_db_uri)
+
+    packet_user = packet.get("user")
+    packet_calories = packet.get("calories")
+    packet_range = packet.get("range")
+    packet_days = packet.get("days")
+    packet_mealsPerDay = packet.get("mealsPerDay")
+
+    logging.info(
+        f"( process_message ) packet_user: {packet_user} packet_calories: {packet_calories} packet_range: {packet_range} packet_days: {packet_days} packet_mealsPerDay: {packet_mealsPerDay}")
+    logging.info(
+        f"( process_message ) packet_user: {type(packet_user)} packet_calories: {type(packet_calories)} packet_range: {type(packet_range)} packet_days: {type(packet_days)} packet_mealsPerDay: {type(packet_mealsPerDay)}")
+
     if packet:
         send_packet_to_queue(channel, codekcal_queue_name, packet)
 

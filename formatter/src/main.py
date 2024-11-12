@@ -59,12 +59,12 @@ def on_message(channel, method, properties, body):
     # calls the formatter modules
     logging.info(f"( run_consumer ) bk_formatter 'bkg-'")
     bk_codes = sort_codes(string_to_list, "bgk-")
-    if bk_codes is not None:
+    if len(bk_codes) > 0:
         bk_formatter.run(bk_codes)
 
     logging.info(f"( run_consumer ) mcd_formatter 'mcd-'")
     mcd_codes = sort_codes(string_to_list, "mcd-")
-    if mcd_codes is not None:
+    if len(mcd_codes) > 0:
         mcd_formatter.run(mcd_codes)
     # on_message
 

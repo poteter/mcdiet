@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="32de84ab-84a7-4a96-9ed0-2e6dc7308425" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../formatter/src/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../formatter/src/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user_parameters/src/main/java/com/boiler/user_parameters/parameters/ParameterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../user_parameters/src/main/java/com/boiler/user_parameters/parameters/ParameterController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +50,7 @@
     "Spring Boot.ItemDbApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/crawl_controller",
+    "last_opened_file_path": "D:/skole/semester5/microservices/mcdiet/menu_plan_db",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -113,6 +113,7 @@
       <workItem from="1731070461178" duration="1392000" />
       <workItem from="1731178801525" duration="1263000" />
       <workItem from="1731240469561" duration="10494000" />
+      <workItem from="1731330496173" duration="2632000" />
     </task>
     <servers />
   </component>
