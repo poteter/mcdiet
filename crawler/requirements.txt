@@ -1,5 +1,3 @@
-pika
-selenium
-browsermob-proxy
-colorama
-python-dotenv
+version https://git-lfs.github.com/spec/v1
+oid sha256:45b2cca5a0e44fe980605bd93b1326d96b82f7e16d416e463f32cd7c78c6c49f
+size 53

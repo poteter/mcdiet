@@ -21,7 +21,7 @@ spring:
           filters:
             - StripPrefix=1
         - id: user_params
-          uri: http://userparameters:8888
+          uri: lb://userparameters
           predicates:
             - Path=/user_params/api/user/**
             - Method=POST

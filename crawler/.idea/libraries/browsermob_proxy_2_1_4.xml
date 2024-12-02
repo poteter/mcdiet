@@ -1,12 +1,3 @@
-<component name="libraryTable">
-  <library name="browsermob-proxy-2.1.4">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-sources.jar!/" />
-      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-javadoc.jar!/" />
-      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-rest-2.1.4-sources.jar!/" />
-      <root url="jar://$PROJECT_DIR$/mcCrawler/src/mcCrawler/browsermob-proxy-2.1.4-bin/browsermob-proxy-2.1.4/browsermob-core-2.1.4-javadoc.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
+version https://git-lfs.github.com/spec/v1
+oid sha256:51da508166faa793226190acceb5d5c62a0d431ba00cf6ab528153cfc592f56a
+size 764
