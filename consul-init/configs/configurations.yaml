@@ -1,0 +1,43 @@
+---
+# Development Routes
+- key: "config/gateway/dev/routes"
+  value: |
+    spring:
+      cloud:
+        gateway:
+           routes:
+                - id: crawl_controller
+                  uri: http://crawlcontroller:8086
+                  predicates:
+                    - Path=/crawl_controller/api/crawl/**
+                    - Method=POST
+                  filters:
+                    - StripPrefix=1
+                - id: user_params
+                  uri: lb://userparameters
+                  predicates:
+                    - Path=/user_params/api/user/**
+                    - Method=POST
+                  filters:
+                    - StripPrefix=1
+                - id: item_db
+                  uri: http://itemdb:8008
+                  predicates:
+                    - Path=/item_db/api/item/**
+                    - Method=POST, GET
+                  filters:
+                    - StripPrefix=1
+                - id: menu_db
+                  uri: http://menudb:8066
+                  predicates:
+                    - Path=/menu_db/api/plan/**
+                    - Method=GET
+                  filters:
+                    - StripPrefix=1
+                - id: user_db
+                  uri: http://userdb:8010
+                  predicates:
+                    - Path=/user_db/api/user/**
+                    - Method=GET, POST, DELETE
+                  filters:
+                    - StripPrefix=1
